@@ -1,4 +1,4 @@
-package play.remotemock.mock;
+package play.remotemock;
 
 public interface Remotable {
 

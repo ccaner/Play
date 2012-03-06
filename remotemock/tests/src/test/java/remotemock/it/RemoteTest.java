@@ -1,23 +1,19 @@
 package remotemock.it;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
+
 import static org.mockito.Mockito.*;
 
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import play.remotemock.MyService;
-import play.remotemock.mock.Remotable;
+
 import static remotemock.it.util.RemoteTestUtil.*;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 @RunWith(SpringJUnit4ClassRunner.class)

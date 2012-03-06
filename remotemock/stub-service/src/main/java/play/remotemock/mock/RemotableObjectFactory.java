@@ -1,6 +1,7 @@
 package play.remotemock.mock;
 
-import play.remotemock.mock.util.RmiUtil;
+import play.remotemock.Remotable;
+import play.remotemock.util.RmiUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
