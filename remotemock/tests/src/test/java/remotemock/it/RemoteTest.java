@@ -14,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import play.remotemock.MyService;
 import play.remotemock.mock.Remotable;
+import static remotemock.it.util.RemoteTestUtil.*;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -25,25 +26,23 @@ public class RemoteTest {
 
     @Autowired
     MyService myService;
-    @Autowired
-    Remotable<MyService> myServiceRemote;
 
     @Test
     public void testStubCall() throws Exception {
         String response = getResponse("/doSomething");
-        Assert.assertEquals("Stub message expected", "Stub do something", response);
+        Assert.assertEquals("Stub message expected", "Stub: do something", response);
     }
 
     @Test
     public void testMock() throws Exception {
-        myServiceRemote.attachRemote("rmi://localhost:1199/MyService");
-        myServiceRemote.switchRemoteModeOn();
+        switchRemoteModeOn(myService);
 
         when(myService.returnSomething()).thenReturn("Mocked response");
+
         String response = getResponse("/doSomething");
         Assert.assertEquals("Mocked message expected", "Mocked response", response);
 
-        myServiceRemote.switchRemoteModeOff();
+        switchRemoteModeOff(myService);
     }
 
     private String getResponse(String path) throws IOException {

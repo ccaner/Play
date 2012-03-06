@@ -7,15 +7,21 @@
         <constructor-arg value="mock."/>
     </bean>
 
-    <bean class="play.remotemock.mock.RemotableExportProcessor">
-        <constructor-arg value="1299" />
-    </bean>
-
     <bean name="stub.myService" class="play.remotemock.stub.StubMyServiceImpl" />
 
     <bean name="mock.myService" class="play.remotemock.mock.RemotableObjectFactory" factory-method="createRemotableProxy">
         <constructor-arg ref="stub.myService"/>
         <constructor-arg value="play.remotemock.MyService" />
     </bean>
+
+    <bean name="rmiRegistry" class="play.remotemock.mock.util.RmiRegistry">
+        <constructor-arg index="0" value="localhost"/>
+        <constructor-arg index="1" value="1299"/>
+    </bean>
+
+    <bean class="play.remotemock.mock.RemotableExposeProcessor">
+        <constructor-arg ref="rmiRegistry" />
+    </bean>
+
 
 </beans>

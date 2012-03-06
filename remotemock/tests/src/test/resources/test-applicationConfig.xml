@@ -3,20 +3,24 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean name="mockMyService" class="org.mockito.Mockito" factory-method="mock" >
+    <bean name="localRegistry" class="play.remotemock.mock.util.RmiRegistry">
+        <constructor-arg index="0" value="localhost"/>
+        <constructor-arg index="1" value="1199"/>
+    </bean>
+
+    <bean name="remoteRegistry" class="play.remotemock.mock.util.RmiRegistry">
+        <constructor-arg index="0" value="localhost"/>
+        <constructor-arg index="1" value="1299"/>
+    </bean>
+
+    <bean name="mockFactory" class="remotemock.it.util.RemotableMockFactory">
+        <constructor-arg index="0" ref="remoteRegistry"/>
+        <constructor-arg index="1" ref="localRegistry"/>
+    </bean>
+
+    <bean name="mockMyService" factory-bean="mockFactory" factory-method="mockAndAttach" >
         <constructor-arg value="play.remotemock.MyService" />
+        <constructor-arg value="myService" />
     </bean>
 
-    <bean class="org.springframework.remoting.rmi.RmiServiceExporter">
-        <property name="serviceName" value="MyService"/>
-        <property name="service" ref="mockMyService"/>
-        <property name="serviceInterface" value="play.remotemock.MyService"/>
-        <property name="registryPort" value="1199"/>
-    </bean>
-
-    <bean id="myService.remote" class="org.springframework.remoting.rmi.RmiProxyFactoryBean">
-        <property name="serviceUrl" value="rmi://localhost:1299/MyServiceRemote"/>
-        <property name="serviceInterface" value="play.remotemock.mock.Remotable"/>
-    </bean>
-    
 </beans>

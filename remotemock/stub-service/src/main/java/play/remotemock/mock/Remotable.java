@@ -1,6 +1,6 @@
 package play.remotemock.mock;
 
-public interface Remotable<T> {
+public interface Remotable {
 
     void attachRemote(String rmiUrl);
 

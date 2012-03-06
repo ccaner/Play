@@ -1,18 +1,14 @@
 package play.remotemock.mock;
 
-import org.springframework.remoting.rmi.RmiProxyFactoryBean;
-import play.remotemock.MyService;
-import play.remotemock.MyServiceImpl;
-import play.remotemock.stub.StubMyServiceImpl;
+import play.remotemock.mock.util.RmiUtil;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.rmi.server.RemoteObject;
 
 public class RemotableObjectFactory {
 
-    public static <T> T createRemotableProxy(final T defaultService, final Class<? super T> serviceInterface) {
+    public static <T> T createRemotableProxy(final T defaultService, final Class<T> serviceInterface) {
         
         Object obj = Proxy.newProxyInstance(RemotableObjectFactory.class.getClassLoader(),
                 new Class<?>[]{serviceInterface, Remotable.class}, new InvocationHandler() {
@@ -35,26 +31,22 @@ public class RemotableObjectFactory {
         return (T) obj;
     }
 
-    private static class RemotableProxy<T> implements Remotable<T> {
+    private static class RemotableProxy<T> implements Remotable {
 
-        T remoteObject;
-        T defaultObject;
-        Class<? super T> serviceInterface;
+        private T remoteObject;
+        private T defaultObject;
+        private Class<T> serviceInterface;
 
-        boolean remoteModeOn = false;
+        private boolean remoteModeOn = false;
 
-        private RemotableProxy(Class<? super T> serviceInterface, T defaultObject) {
+        private RemotableProxy(Class<T> serviceInterface, T defaultObject) {
             this.serviceInterface = serviceInterface;
             this.defaultObject = defaultObject;
         }
 
         @Override
         public void attachRemote(String url) {
-            RmiProxyFactoryBean rmiProxyFactoryBean = new RmiProxyFactoryBean();
-            rmiProxyFactoryBean.setServiceUrl(url);
-            rmiProxyFactoryBean.setServiceInterface(serviceInterface);
-            rmiProxyFactoryBean.afterPropertiesSet();
-            remoteObject = (T) rmiProxyFactoryBean.getObject();
+            remoteObject = RmiUtil.clientProxy(url, serviceInterface);
         }
 
         public void switchRemoteModeOn() {

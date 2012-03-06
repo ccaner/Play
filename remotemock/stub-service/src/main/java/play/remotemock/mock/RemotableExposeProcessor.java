@@ -4,30 +4,26 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.remoting.rmi.RmiServiceExporter;
+import play.remotemock.mock.util.RmiRegistry;
+import play.remotemock.mock.util.RmiUtil;
 
 import java.rmi.RemoteException;
 
-public class RemotableExportProcessor implements BeanPostProcessor, ApplicationContextAware {
+public class RemotableExposeProcessor implements BeanPostProcessor, ApplicationContextAware {
 
     ApplicationContext context;
 
-    Integer registryPort = 1299;
+    RmiRegistry rmiRegistry;
 
-    public RemotableExportProcessor(Integer registryPort) {
-        this.registryPort = registryPort;
+    public RemotableExposeProcessor(RmiRegistry rmiRegistry) {
+        this.rmiRegistry = rmiRegistry;
     }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         try {
             if (bean instanceof Remotable) {
-                RmiServiceExporter exporter = new RmiServiceExporter();
-                exporter.setRegistryPort(registryPort);
-                exporter.setService(bean);
-                exporter.setServiceName(beanName + "Remote");
-                exporter.setServiceInterface(Remotable.class);
-                exporter.afterPropertiesSet();
+                rmiRegistry.exportService((Remotable) bean, beanName + "Remote", Remotable.class);
             }
         } catch (RemoteException e) {
             e.printStackTrace();
