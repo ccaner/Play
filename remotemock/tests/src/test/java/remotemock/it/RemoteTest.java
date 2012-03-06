@@ -3,18 +3,19 @@ package remotemock.it;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import static org.mockito.Mockito.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import play.remotemock.MyService;
 
-import static remotemock.it.util.RemoteTestUtil.*;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URL;
+
+import static org.mockito.Mockito.*;
+import static remotemock.it.util.RemoteTestUtil.switchRemoteModeOff;
+import static remotemock.it.util.RemoteTestUtil.switchRemoteModeOn;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:test-applicationConfig.xml")
@@ -33,10 +34,17 @@ public class RemoteTest {
     public void testMock() throws Exception {
         switchRemoteModeOn(myService);
 
-        when(myService.returnSomething()).thenReturn("Mocked response");
+        doReturn("Mocked response").when(myService).returnSomething();
 
         String response = getResponse("/doSomething");
         Assert.assertEquals("Mocked message expected", "Mocked response", response);
+
+        verify(myService, times(1)).returnSomething();
+
+        response = getResponse("/doSomethingElse");
+        Assert.assertEquals("Stub message expected", "Stub: do something else", response);
+
+        verify(myService, times(1)).returnSomethingElse();
 
         switchRemoteModeOff(myService);
     }

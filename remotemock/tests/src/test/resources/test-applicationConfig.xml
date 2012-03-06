@@ -18,9 +18,9 @@
         <constructor-arg index="1" ref="localRegistry"/>
     </bean>
 
-    <bean name="mockMyService" factory-bean="mockFactory" factory-method="mockAndAttach" >
+    <bean name="mockMyService" factory-bean="mockFactory" factory-method="spyAndAttach" >
         <constructor-arg value="play.remotemock.MyService" />
-        <constructor-arg value="myService" />
+        <constructor-arg value="MyService" />
     </bean>
 
 </beans>

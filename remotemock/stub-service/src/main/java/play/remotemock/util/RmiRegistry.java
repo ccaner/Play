@@ -2,13 +2,6 @@ package play.remotemock.util;
 
 import java.rmi.RemoteException;
 
-/**
- * Created by IntelliJ IDEA.
- * User: caner
- * Date: 3/6/12
- * Time: 2:46 AM
- * To change this template use File | Settings | File Templates.
- */
 public class RmiRegistry {
 
     private String host;
@@ -24,7 +17,7 @@ public class RmiRegistry {
         RmiUtil.exportService(service, port, name, serviceInterface);
     }
 
-    public <T> T getClientProxy(String name, Class<? super T> serviceInterface) {
+    public <T> T getClientProxy(String name, Class<T> serviceInterface) {
         return RmiUtil.clientProxy(getServiceUrl(name), serviceInterface);
     }
 

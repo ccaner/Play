@@ -7,12 +7,7 @@
         <constructor-arg value="mock."/>
     </bean>
 
-    <bean name="stub.myService" class="play.remotemock.stub.StubMyServiceImpl" />
-
-    <bean name="mock.myService" class="play.remotemock.mock.RemotableObjectFactory" factory-method="createRemotableProxy">
-        <constructor-arg ref="stub.myService"/>
-        <constructor-arg value="play.remotemock.MyService" />
-    </bean>
+    <bean name="mock.myService" class="play.remotemock.stub.StubMyServiceImpl" />
 
     <bean name="rmiRegistry" class="play.remotemock.util.RmiRegistry">
         <constructor-arg index="0" value="localhost"/>
