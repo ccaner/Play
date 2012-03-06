@@ -11,6 +11,7 @@
 
     <modules>
         <module>beanhide</module>
+        <module>jetty</module>
     </modules>
 
     <properties>
