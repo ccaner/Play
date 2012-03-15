@@ -22,35 +22,53 @@ import java.io.IOException;
  */
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    Server server;
 
-        Server server = new Server();
+    public void startUp(int acceptor, int maxsize) throws Exception {
+
+        server = new Server();
         SelectChannelConnector connector0 = new SelectChannelConnector();
                 connector0.setPort(8080);
                 connector0.setMaxIdleTime(30000);
                 connector0.setRequestHeaderSize(8192);
-                connector0.setAcceptors(4);
+                connector0.setAcceptors(2);
                 connector0.setStatsOn(true);
 
         server.setHandler(new AbstractHandler() {
             @Override
             public void handle(String target, Request baseRequest, HttpServletRequest request,
                                HttpServletResponse response) throws IOException, ServletException {
-                System.out.println("Main.handle");
+                try {
+                    System.out.println(Thread.currentThread().getName());
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+
+                }
+                response.setStatus(200);
+                response.getOutputStream().print("OK");
+                response.getOutputStream().flush();
             }
         });
 
         server.setConnectors(new Connector[]{connector0});
 
         QueuedThreadPool threadPool = new QueuedThreadPool();
-        threadPool.setMaxThreads(8);
-        threadPool.setMinThreads(1);
+        threadPool.setMaxThreads(maxsize);
+        threadPool.setMinThreads(maxsize);
         server.setThreadPool(threadPool);
 
+
+        connector0.removeBean(connector0.getSelectorManager());
         server.start();
+        //Thread.sleep(10000);
+        connector0.getSelectorManager().setSelectSets(4);
+        connector0.addBean(connector0.getSelectorManager());
+
         server.join();
 
-
-
+    }
+    
+    public void shutDown() throws Exception {
+        server.stop();
     }
 }

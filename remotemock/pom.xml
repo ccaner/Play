@@ -11,8 +11,13 @@
     </parent>
 
     <groupId>ccaner.play</groupId>
-    <artifactId>beanhide</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>remotemock</artifactId>
+    <packaging>pom</packaging>
 
+    <modules>
+        <module>service</module>
+        <module>stub-service</module>
+        <module>tests</module>
+    </modules>
 
 </project>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean class="play.beanhide.BeanHideProcessor" init-method="init">
+        <constructor-arg value="mock."/>
+    </bean>
+
+    <bean class="play.remotemock.mock.RemotableExportProcessor">
+        <constructor-arg value="1299" />
+    </bean>
+
+    <bean name="stub.myService" class="play.remotemock.stub.StubMyServiceImpl" />
+
+    <bean name="mock.myService" class="play.remotemock.mock.RemotableObjectFactory" factory-method="createRemotableProxy">
+        <constructor-arg ref="stub.myService"/>
+        <constructor-arg value="play.remotemock.MyService" />
+    </bean>
+
+</beans>

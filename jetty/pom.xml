@@ -17,6 +17,11 @@
     <properties>
         <jetty.version>7.6.1.v20120215</jetty.version>
         <!--<jetty.version>7.5.4.v20111024</jetty.version>-->
+        <!--<jetty.version>7.4.5.v20110725</jetty.version>-->
+        <!--<jetty.version>7.3.1.v20110307</jetty.version>-->
+        <!--<jetty.version>7.3.0.v20110203</jetty.version>-->
+        <!--<jetty.version>7.2.0.v20101020</jetty.version>-->
+        <!--<jetty.version>7.1.6.v20100715</jetty.version>-->
     </properties>
 
     <dependencies>

@@ -6,13 +6,17 @@
 
     <parent>
         <groupId>ccaner.play</groupId>
-        <artifactId>play-pom</artifactId>
+        <artifactId>remotemock</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>ccaner.play</groupId>
-    <artifactId>beanhide</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>ccaner.play.remotemock</groupId>
+    <artifactId>service</artifactId>
 
-
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+    </dependencies>
 </project>
