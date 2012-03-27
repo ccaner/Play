@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import play.remotemock.MyService;
+import play.remotemockexample.MyService;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,8 +14,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 
 import static org.mockito.Mockito.*;
-import static remotemock.it.util.RemoteTestUtil.switchRemoteModeOff;
-import static remotemock.it.util.RemoteTestUtil.switchRemoteModeOn;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:test-applicationConfig.xml")

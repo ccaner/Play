@@ -6,19 +6,13 @@
 
     <parent>
         <groupId>ccaner.play</groupId>
-        <artifactId>remotemock-example</artifactId>
+        <artifactId>play-pom</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>ccaner.play.remotemock</groupId>
-    <artifactId>tests</artifactId>
+    <groupId>ccaner.play</groupId>
+    <artifactId>remotemock</artifactId>
+    <packaging>jar</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>ccaner.play.remotemock</groupId>
-            <artifactId>stub-service</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
 
 </project>

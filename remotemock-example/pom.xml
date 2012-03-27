@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>ccaner.play</groupId>
-    <artifactId>remotemock</artifactId>
+    <artifactId>remotemock-example</artifactId>
     <packaging>pom</packaging>
 
     <modules>

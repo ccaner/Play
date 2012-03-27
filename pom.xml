@@ -13,6 +13,7 @@
         <module>beanhide</module>
         <module>jetty</module>
         <module>remotemock</module>
+        <module>remotemock-example</module>
     </modules>
 
     <properties>

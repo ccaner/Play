@@ -2,7 +2,7 @@ package remotemock;
 
 import org.junit.Test;
 import org.mockito.Mock;
-import play.remotemock.MyService;
+import play.remotemockexample.MyService;
 
 public class TestMock {
 
