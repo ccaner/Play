@@ -1,11 +1,9 @@
-package remotemock.it.util;
+package play.remotemock.util;
 
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import play.remotemockexample.Remotable;
-import play.remotemockexample.util.CallLocalMethodException;
-import play.remotemockexample.util.RmiRegistry;
+import play.remotemock.Remotable;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;

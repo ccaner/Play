@@ -2,14 +2,16 @@ package play.remotemock.processor;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.core.Ordered;
 import play.remotemock.annotation.Exportable;
 import play.remotemock.util.RmiRegistry;
 
 import java.rmi.RemoteException;
 
-public class ExportableBeanProcessor implements BeanPostProcessor {
+public class ExportableBeanProcessor implements BeanPostProcessor, Ordered {
 
     private RmiRegistry rmiRegistry;
+    private int order = 5;
     private ServiceNamingStrategy namingStrategy = new DefaultServiceNamingStrategy();
 
     @Override
@@ -38,6 +40,15 @@ public class ExportableBeanProcessor implements BeanPostProcessor {
 
     public void setNamingStrategy(ServiceNamingStrategy namingStrategy) {
         this.namingStrategy = namingStrategy;
+    }
+
+    @Override
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     static class DefaultServiceNamingStrategy implements ServiceNamingStrategy {

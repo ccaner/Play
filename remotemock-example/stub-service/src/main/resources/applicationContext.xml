@@ -7,16 +7,16 @@
         <constructor-arg value="mock."/>
     </bean>
 
-    <bean name="mock.myService" class="play.remotemockexample.stub.StubMyServiceImpl" />
+    <bean class="play.remotemock.processor.RemotableBeanProcessor">
+        <constructor-arg ref="rmiRegistry" />
+    </bean>
 
-    <bean name="rmiRegistry" class="play.remotemockexample.util.RmiRegistry">
+    <bean name="rmiRegistry" class="play.remotemock.util.RmiRegistry">
         <constructor-arg index="0" value="localhost"/>
         <constructor-arg index="1" value="1299"/>
     </bean>
 
-    <bean class="play.remotemockexample.processor.RemotableBeanProcessor">
-        <constructor-arg ref="rmiRegistry" />
-    </bean>
+    <bean name="mock.myService" class="play.remotemockexample.stub.StubMyServiceImpl" />
 
 
 </beans>

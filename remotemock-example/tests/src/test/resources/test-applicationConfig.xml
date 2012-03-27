@@ -3,17 +3,17 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean name="localRegistry" class="play.remotemockexample.util.RmiRegistry">
+    <bean name="localRegistry" class="play.remotemock.util.RmiRegistry">
         <constructor-arg index="0" value="localhost"/>
         <constructor-arg index="1" value="1199"/>
     </bean>
 
-    <bean name="remoteRegistry" class="play.remotemockexample.util.RmiRegistry">
+    <bean name="remoteRegistry" class="play.remotemock.util.RmiRegistry">
         <constructor-arg index="0" value="localhost"/>
         <constructor-arg index="1" value="1299"/>
     </bean>
 
-    <bean name="mockFactory" class="remotemock.it.util.RemotableMockFactory">
+    <bean name="mockFactory" class="play.remotemock.util.RemotableMockFactory">
         <constructor-arg index="0" ref="remoteRegistry"/>
         <constructor-arg index="1" ref="localRegistry"/>
     </bean>

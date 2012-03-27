@@ -40,7 +40,7 @@ public class StartupTest {
 
     @AfterClass
     public static void stopJetty() throws Exception {
-       // server.shutDown();
+       server.shutDown();
     }
 
 }

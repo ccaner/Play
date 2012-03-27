@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import play.remotemock.util.RemotableMockFactory;
 import play.remotemockexample.MyService;
 
 import java.io.BufferedReader;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.*;
 public class RemoteTest {
 
     @Autowired
-    MyService myService;
+    RemotableMockFactory mockFactory;
 
     @Test
     public void testStubCall() throws Exception {
@@ -30,17 +31,18 @@ public class RemoteTest {
 
     @Test
     public void testMock() throws Exception {
-        doReturn("Mocked response").when(myService).returnSomething();
+        MyService myServiceMock = mockFactory.spyAndAttach(MyService.class, "MyService");
+        doReturn("Mocked response").when(myServiceMock).returnSomething();
 
         String response = getResponse("/doSomething");
         Assert.assertEquals("Mocked message expected", "Mocked response", response);
 
-        verify(myService, times(1)).returnSomething();
+        verify(myServiceMock, times(1)).returnSomething();
 
         response = getResponse("/doSomethingElse");
         Assert.assertEquals("Stub message expected", "Stub: do something else", response);
 
-        verify(myService, times(1)).returnSomethingElse();
+        verify(myServiceMock, times(1)).returnSomethingElse();
     }
 
     private String getResponse(String path) throws IOException {

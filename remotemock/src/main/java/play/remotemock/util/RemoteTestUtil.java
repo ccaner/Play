@@ -1,6 +1,7 @@
-package remotemock.it.util;
+package play.remotemock.util;
 
-import play.remotemockexample.Remotable;
+import play.remotemock.Remotable;
+import play.remotemock.util.RemotableMockFactory;
 
 public class RemoteTestUtil {
 

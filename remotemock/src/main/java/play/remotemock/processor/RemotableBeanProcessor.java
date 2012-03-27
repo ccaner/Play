@@ -1,39 +1,43 @@
 package play.remotemock.processor;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.Ordered;
+import org.springframework.util.ClassUtils;
 import play.remotemock.annotation.Remotable;
 import play.remotemock.util.RmiRegistry;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.rmi.RemoteException;
 
-public class RemotableBeanProcessor implements BeanPostProcessor, ApplicationContextAware {
 
-    ApplicationContext context;
+public class RemotableBeanProcessor implements BeanPostProcessor, Ordered {
 
-    RmiRegistry rmiRegistry;
+    private RmiRegistry rmiRegistry;
 
-    ServiceNamingStrategy namingStrategy = new DefaultRemotableServiceNamingStrategy();
+    private ServiceNamingStrategy namingStrategy = new DefaultRemotableServiceNamingStrategy();
+
+    private int order = 10;
 
     public RemotableBeanProcessor(RmiRegistry rmiRegistry) {
         this.rmiRegistry = rmiRegistry;
     }
 
     @Override
+    @SuppressWarnings({"unchecked"})
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         Remotable remotable = bean.getClass().getAnnotation(Remotable.class);
         try {
             if (remotable != null) {
-                Class<?>[] interfaces = new Class<?>[]{play.remotemock.Remotable.class};
-                Class<?> superClass = bean.getClass();
-                MethodInterceptor invocationHandler = new RemotableInvocationHandler<Object>(bean,
+                Class<?>[] allInterfaces = ArrayUtils.addAll(ClassUtils.getAllInterfaces(bean),
+                        play.remotemock.Remotable.class);
+                InvocationHandler invocationHandler = new RemotableInvocationHandler<>(bean,
                         (Class<Object>) remotable.value());
 
-                Object proxy = proxyObject(interfaces, superClass, invocationHandler);
+                Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), allInterfaces, invocationHandler);
+
                 rmiRegistry.exportService((play.remotemock.Remotable) proxy,
                         namingStrategy.getServiceName(bean, beanName, remotable.value()),
                         play.remotemock.Remotable.class);
@@ -49,26 +53,22 @@ public class RemotableBeanProcessor implements BeanPostProcessor, ApplicationCon
         return bean;
     }
 
-    private Object proxyObject(Class<?>[] interfaces, Class<?> superClass, MethodInterceptor invocationHandler) {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(superClass);
-        enhancer.setInterfaces(interfaces);
-        enhancer.setCallback(invocationHandler);
-        return enhancer.create();
-    }
-
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         return bean;
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.context = applicationContext;
-    }
-
     public void setNamingStrategy(ServiceNamingStrategy namingStrategy) {
         this.namingStrategy = namingStrategy;
+    }
+
+    @Override
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     private class DefaultRemotableServiceNamingStrategy extends ExportableBeanProcessor.DefaultServiceNamingStrategy {

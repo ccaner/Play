@@ -1,54 +1,53 @@
 package play.remotemock.processor;
 
-import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 import play.remotemock.Remotable;
 import play.remotemock.util.CallLocalMethodException;
 import play.remotemock.util.RmiUtil;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class RemotableInvocationHandler<T> implements MethodInterceptor {
+public class RemotableInvocationHandler<T> implements InvocationHandler {
 
     private final RemotableHelper<T> remotableHelper;
 
     public RemotableInvocationHandler(T localObject, Class<T> serviceInterface) {
-        remotableHelper = new RemotableHelper<T>(localObject, serviceInterface);
+        remotableHelper = new RemotableHelper<>(localObject, serviceInterface);
     }
 
     @Override
-    public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getDeclaringClass().equals(Remotable.class)) {
             return method.invoke(remotableHelper, args);
         }
-        Method serviceMethod = remotableHelper.serviceInterface.getMethod(method.getName(),
-                method.getParameterTypes());
-        if (serviceMethod != null) {
-            if (remotableHelper.remoteModeOn) {
-                try {
-                    return serviceMethod.invoke(remotableHelper.remoteObject, args);
-                } catch (InvocationTargetException e) {
-                    if (e.getTargetException() instanceof CallLocalMethodException) {
-                        return serviceMethod.invoke(remotableHelper.localObject, args);
-                    }
-                    throw e;
+        Method serviceMethod = null;
+        try {
+            serviceMethod = remotableHelper.serviceInterface.getMethod(method.getName(),
+                    method.getParameterTypes());
+        } catch (NoSuchMethodException ignore) {
+        }
+        if (serviceMethod != null && remotableHelper.remoteModeOn) {
+            try {
+                return serviceMethod.invoke(remotableHelper.remoteObject, args);
+            } catch (InvocationTargetException e) {
+                if (e.getTargetException() instanceof CallLocalMethodException) {
+                    return serviceMethod.invoke(remotableHelper.localObject, args);
                 }
-            } else {
-                return serviceMethod.invoke(remotableHelper.localObject, args);
+                throw e;
             }
         }
         return method.invoke(remotableHelper.localObject, args);
     }
 
-    static class RemotableHelper<T> implements Remotable {
+    private static class RemotableHelper<T> implements Remotable {
 
-        boolean remoteModeOn = false;
-        T localObject;
-        T remoteObject;
-        Class<T> serviceInterface;
+        volatile private boolean remoteModeOn = false;
+        private T localObject;
+        private T remoteObject;
+        private Class<T> serviceInterface;
 
-        RemotableHelper(T localObject, Class<T> serviceInterface) {
+        private RemotableHelper(T localObject, Class<T> serviceInterface) {
             this.localObject = localObject;
             this.serviceInterface = serviceInterface;
         }

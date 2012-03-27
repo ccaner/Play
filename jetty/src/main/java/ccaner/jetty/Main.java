@@ -64,8 +64,6 @@ public class Main {
         connector0.getSelectorManager().setSelectSets(4);
         connector0.addBean(connector0.getSelectorManager());
 
-        server.join();
-
     }
     
     public void shutDown() throws Exception {

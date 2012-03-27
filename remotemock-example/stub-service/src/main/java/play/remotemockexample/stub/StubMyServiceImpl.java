@@ -1,7 +1,7 @@
 package play.remotemockexample.stub;
 
+import play.remotemock.annotation.Remotable;
 import play.remotemockexample.MyService;
-import play.remotemockexample.annotation.Remotable;
 
 @Remotable(MyService.class)
 public class StubMyServiceImpl implements MyService {

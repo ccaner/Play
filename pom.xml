@@ -21,6 +21,7 @@
         <junit.version>4.10</junit.version>
         <mockito.version>1.9.0</mockito.version>
         <cglib.version>2.2.2</cglib.version>
+        <commons.version>3.1</commons.version>
     </properties>
 
     <dependencyManagement>
@@ -82,9 +83,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>org.easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>3.1</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -119,8 +120,8 @@
             <artifactId>mockito-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
