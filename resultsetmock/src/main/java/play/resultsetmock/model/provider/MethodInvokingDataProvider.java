@@ -11,8 +11,9 @@ import java.util.List;
  *  Class that populates data by executing a method.
  *  Query annotation is backed by an instance of this
  */
-public class MethodInvokingDataProvider<T> implements DataProvider<T> {
+public class MethodInvokingDataProvider<T> implements DataProvider {
 
+/*
     Object object;
     Method method;
 
@@ -33,5 +34,11 @@ public class MethodInvokingDataProvider<T> implements DataProvider<T> {
     public boolean canAnswer(Query query) {
 //        query.getIdentifier
 //        return false;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+*/
+
+    @Override
+    public <T> T query(Query<T> query) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 }

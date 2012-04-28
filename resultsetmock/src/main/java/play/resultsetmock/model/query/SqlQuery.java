@@ -1,5 +1,7 @@
 package play.resultsetmock.model.query;
 
+import java.sql.ResultSet;
+
 /**
  * Created by IntelliJ IDEA.
  * User: akpinarc
@@ -7,5 +9,5 @@ package play.resultsetmock.model.query;
  * Time: 2:54 PM
  * To change this template use File | Settings | File Templates.
  */
-public class SqlQuery<T> implements Query<T> {
+public class SqlQuery implements Query<ResultSet> {
 }

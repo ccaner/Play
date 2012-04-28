@@ -19,11 +19,13 @@ public class ResultSetPopulator {
     
     public ResultSet getResultSet(Query query) {
         List result = null;
+/*
         for (DataProvider dataProvider : providerRegistry) {
             if (dataProvider.canAnswer(query)) {
                 result = dataProvider.query(query);
             }
         }
+*/
         return wrap(result);
     }
     

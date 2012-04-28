@@ -1,5 +1,7 @@
 package play.resultsetmock.model.query;
 
+import org.w3c.dom.Document;
+
 /**
  * Created by IntelliJ IDEA.
  * User: akpinarc
@@ -7,5 +9,5 @@ package play.resultsetmock.model.query;
  * Time: 3:17 PM
  * To change this template use File | Settings | File Templates.
  */
-public class XPathQuery<T> implements Query<T> {
+public class XPathQuery implements Query<Document> {
 }

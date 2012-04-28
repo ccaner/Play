@@ -9,7 +9,7 @@ public class Model {
     @Query("select * from pets")
     public List<Pet> loadPets(
             @Param("name") String name,
-            @Param("age") Integer age) {
+            @Param("age") int age) {
 
         return Lists.<Pet>newArrayList(
                 new Pet("pet", 1, "Caner"),

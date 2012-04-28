@@ -1,11 +1,16 @@
 package play.resultsetmock.annotations;
 
-/**
- * Created by IntelliJ IDEA.
- * User: akpinarc
- * Date: 4/27/12
- * Time: 11:40 PM
- * To change this template use File | Settings | File Templates.
- */
-public class RsColumn {
+import java.lang.annotation.*;
+
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface RsColumn {
+
+    /* Result set column label */
+    String value();
+
+    /* Result set column index */
+    int index() default -1;
+
 }

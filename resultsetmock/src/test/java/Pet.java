@@ -1,3 +1,5 @@
+import play.resultsetmock.annotations.RsColumn;
+
 /**
  * Created by IntelliJ IDEA.
  * User: akpinarc
@@ -19,6 +21,7 @@ public class Pet {
         this.owner = owner;
     }
 
+    @RsColumn("name")
     public String getName() {
         return name;
     }
@@ -27,6 +30,7 @@ public class Pet {
         this.name = name;
     }
 
+    @RsColumn("age")
     public Integer getAge() {
         return age;
     }
@@ -35,6 +39,7 @@ public class Pet {
         this.age = age;
     }
 
+    @RsColumn("owner_name")
     public String getOwner() {
         return owner;
     }

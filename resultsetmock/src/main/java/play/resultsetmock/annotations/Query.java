@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 @Target(ElementType.METHOD)
 public @interface Query {
 
-    /* Something to identify query, we will use SQL.contains */
+    /* Something to identify query, we will use string contains */
     String value();
 
 }
