@@ -1,4 +1,8 @@
+package play.resultsetmock.jdbc;
+
 import com.google.common.collect.Lists;
+import play.resultsetmock.Model;
+import play.resultsetmock.Pet;
 import play.resultsetmock.jdbc.MockJdbcFactory;
 
 import javax.sql.DataSource;

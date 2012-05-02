@@ -1,3 +1,5 @@
+package play.resultsetmock;
+
 import play.resultsetmock.annotations.RsColumn;
 
 /**
