@@ -46,7 +46,7 @@ public abstract class MethodBackedPreparedStatement implements PreparedStatement
             Class<?>[] pTypes = method.getParameterTypes();
             boolean isSetter = mName.startsWith("set") && pTypes.length == 2;
             if (isSetter && pTypes[0] == Integer.TYPE) { // set by column idx
-                mockPs.setArgument((Integer) args[0], (Integer)args[1]);
+                mockPs.setArgument((Integer) args[0], args[1]);
                 return null;
             }
             return Defaults.defaultValue(method.getReturnType());

@@ -4,6 +4,7 @@ import com.google.common.base.Defaults;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import play.resultsetmock.annotations.Query;
 
 import javax.sql.DataSource;
 import java.io.ObjectStreamConstants;
@@ -11,6 +12,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.List;
 
@@ -29,19 +31,33 @@ public abstract class MockJdbcFactory {
             });
     }
 
-    public static Connection createConnection(Object model) {
+    public static Connection createConnection(final Object model) {
         
         return (Connection) Proxy.newProxyInstance(MockJdbcFactory.class.getClassLoader(), new Class[]{Connection.class},
                 new InvocationHandler() {
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        if (method.getName().equals("prepareStatement")) {
-                            return createPreparedStatement(args[0]);
+                        if (method.getName().equals("prepareStatement") || method.getName().equals("prepareStatement")) {
+                            Method queryMethod = getQueryMethod(model, (String) args[0]);
+                            if (queryMethod == null) {
+                                throw new IllegalArgumentException("Cannot find loader method for sql :" + args[0]);
+                            }
+                            return createPreparedStatement(model, queryMethod);
                         }
                         return null;
                     }
                 });
 
+    }
+    
+    public static Method getQueryMethod(Object model, String sql) {
+        for (Method method : model.getClass().getDeclaredMethods()) {
+            Query query = method.getAnnotation(Query.class);
+            if (query != null && sql.contains(query.value())) {
+                return method;
+            }
+        }
+        return null;
     }
     
     public static <T> ResultSet createResultSet(List<T> backingList) {
@@ -52,12 +68,12 @@ public abstract class MockJdbcFactory {
         return (ResultSet) rs;
     }
 
-    public static ResultSet createPreparedStatement(Object model, Method method) {
+    public static PreparedStatement createPreparedStatement(Object model, Method method) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(MethodBackedPreparedStatement.class);
         enhancer.setCallback(new MethodBackedPreparedStatement.Interceptor());
         Object rs = enhancer.create(new Class[]{Object.class, Method.class}, new Object[]{model, method});
-        return (ResultSet) rs;
+        return (PreparedStatement) rs;
     }
 
     public static <T> T initializeAbstractClass(final Class<T> clazz) {
@@ -65,7 +81,7 @@ public abstract class MockJdbcFactory {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T initializeAbstractClass(final Class<T> clazz, Class[] paramTypes, Object[] args) {
+    public static <T> T initializeAbstractClass(final Class<? extends T> clazz, Class[] paramTypes, Object[] args) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(clazz);
         enhancer.setCallback(new MethodInterceptor() {
