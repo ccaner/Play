@@ -32,7 +32,7 @@ public class RemotableInvocationHandler<T> implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getDeclaringClass().equals(Remotable.class)) {
-            logControl(method, args);
+            //logControl(method, args);
             return method.invoke(helper, args);
         }
         // we volunteer to handle toString or hashCode here

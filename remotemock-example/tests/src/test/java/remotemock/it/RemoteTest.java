@@ -31,7 +31,7 @@ public class RemoteTest {
 
     @Test
     public void testMock() throws Exception {
-        MyService myServiceMock = mockFactory.spyAndAttach(MyService.class, "MyService");
+        MyService myServiceMock = mockFactory.mockAndAttach(MyService.class, "MyService");
         doReturn("Mocked response").when(myServiceMock).returnSomething();
 
         String response = getResponse("/doSomething");
