@@ -7,7 +7,7 @@
         <constructor-arg value="mock."/>
     </bean>
 
-    <bean class="play.remotemock.processor.RemotableBeanProcessor">
+    <bean class="play.remotemock.processor.RemotableInvocationHandler">
         <constructor-arg ref="rmiRegistry" />
     </bean>
 

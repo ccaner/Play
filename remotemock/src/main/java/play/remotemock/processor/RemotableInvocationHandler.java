@@ -1,51 +1,67 @@
 package play.remotemock.processor;
 
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.remotemock.Remotable;
-import play.remotemock.util.CallLocalMethodException;
-import play.remotemock.util.RmiUtil;
+import play.remotemock.util.InvokeLocalMethodException;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
+
+/**
+ * Enhances proxy with a RemotableHelper object. Makes it effectively implement Remotable interface.
+ * <p/>
+ * Handles Remotable and T(interface) methods
+ * <p/>
+ * RMI-free
+ */
 public class RemotableInvocationHandler<T> implements InvocationHandler {
 
-    private final RemotableHelper<T> remotableHelper;
+    private static final Logger logger = LoggerFactory.getLogger(RemotableInvocationHandler.class);
+
+    private final RemotableHelper<T> helper;
 
     public RemotableInvocationHandler(T localObject, Class<T> serviceInterface) {
-        remotableHelper = new RemotableHelper<>(localObject, serviceInterface);
+        helper = new RemotableHelper<T>(localObject, serviceInterface);
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getDeclaringClass().equals(Remotable.class)) {
-            return method.invoke(remotableHelper, args);
+            logControl(method, args);
+            return method.invoke(helper, args);
         }
-        Method serviceMethod = null;
-        try {
-            serviceMethod = remotableHelper.serviceInterface.getMethod(method.getName(),
-                    method.getParameterTypes());
-        } catch (NoSuchMethodException ignore) {
-        }
-        if (serviceMethod != null && remotableHelper.remoteModeOn) {
+        // we volunteer to handle toString or hashCode here
+        boolean isServiceMethod = method.getDeclaringClass().isAssignableFrom(helper.serviceInterface);
+        if (isServiceMethod && helper.remoteModeOn) {
             try {
-                return serviceMethod.invoke(remotableHelper.remoteObject, args);
+                Object result = method.invoke(helper.remoteObject, args);
+                logRemote(method, args, result);
+                return result;
             } catch (InvocationTargetException e) {
-                if (e.getTargetException() instanceof CallLocalMethodException) {
-                    return serviceMethod.invoke(remotableHelper.localObject, args);
+                if (InvokeLocalMethodException.class.isInstance(e.getCause())) {
+                    Object result = method.invoke(helper.localObject, args);
+                    logRedirect(method, args, result);
+                    return result;
                 }
-                throw e;
+                throw e.getCause();
             }
         }
-        return method.invoke(remotableHelper.localObject, args);
+        Object result = method.invoke(helper.localObject, args);
+        logLocal(method, args, result);
+        return result;
     }
 
-    private static class RemotableHelper<T> implements Remotable {
+    private static class RemotableHelper<T> implements Remotable<T> {
 
-        volatile private boolean remoteModeOn = false;
-        private T localObject;
-        private T remoteObject;
-        private Class<T> serviceInterface;
+        volatile T remoteObject;
+        final T localObject;
+        final Class<T> serviceInterface;
+        volatile boolean remoteModeOn = false;
 
         private RemotableHelper(T localObject, Class<T> serviceInterface) {
             this.localObject = localObject;
@@ -53,8 +69,8 @@ public class RemotableInvocationHandler<T> implements InvocationHandler {
         }
 
         @Override
-        public void attachRemote(String rmiUrl) {
-            remoteObject = RmiUtil.clientProxy(rmiUrl, serviceInterface);
+        public void attachRemote(T remoteObject) {
+            RemotableHelper.this.remoteObject = remoteObject;
         }
 
         @Override
@@ -66,6 +82,32 @@ public class RemotableInvocationHandler<T> implements InvocationHandler {
         public void switchRemoteModeOff() {
             remoteModeOn = false;
         }
+    }
+
+    private void logLocal(Method method, Object[] args, Object result) {
+        if (!method.getDeclaringClass().equals(Object.class)) {
+            logger.debug("LOCAL: method: [{},{}] response: [{}]",
+                    new Object[]{method.getName(), Arrays.toString(args),
+                            ReflectionToStringBuilder.toString(result)});
+        }
+    }
+
+    private void logRedirect(Method method, Object[] args, Object result) {
+        logger.debug("REMOTE call directed to local: method: [{},{}] response: [{}]",
+                new Object[]{method.getName(), Arrays.toString(args),
+                        ReflectionToStringBuilder.toString(result)});
+    }
+
+    private void logRemote(Method method, Object[] args, Object result) {
+        logger.debug("REMOTE: method: [{},{}] response: [{}]",
+                new Object[]{method.getName(), Arrays.toString(args),
+                        ReflectionToStringBuilder.toString(result)});
+    }
+
+    private void logControl(Method method, Object[] args) {
+        logger.trace("CONTROL: method: [{},{}] local class: [{}]",
+                new Object[]{method.getName(), Arrays.toString(args),
+                        helper.localObject.getClass().getSimpleName()});
     }
 
 }
