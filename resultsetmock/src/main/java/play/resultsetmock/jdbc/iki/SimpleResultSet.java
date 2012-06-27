@@ -1,14 +1,10 @@
-package play.resultsetmock.jdbc;
+package play.resultsetmock.jdbc.iki;
 
 import com.google.common.base.Defaults;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.resultsetmock.annotations.RsColumn;
 
-import java.beans.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
@@ -16,54 +12,37 @@ import java.sql.SQLException;
 import java.util.*;
 
 /**
- * An initializable abstract class.
+ * A TYPE_FORWARD_ONLY, CONCUR_READ_ONLY result set implementation.
  */
-public abstract class BeanBackedResultSet<T> implements ResultSet {
+public abstract class SimpleResultSet implements ResultSet {
     
-    static final Logger logger = LoggerFactory.getLogger(BeanBackedResultSet.class); 
-
-    private final List<T> rows;
+    private final TabularDataProvider data;
     private int index = -1;
 
-    /* may be better to introduce another layer for these */
-    private final Map<Integer, MethodDescriptor> byIndex = new HashMap<Integer, MethodDescriptor>();
-    private final Map<String, MethodDescriptor> byLabel = new HashMap<String, MethodDescriptor>();
-
-    public BeanBackedResultSet(List<T> rows) {
-        this.rows = rows == null ? Collections.<T>emptyList() : new ArrayList<T>(rows);
-        introspect();
+    public SimpleResultSet(TabularDataProvider data) {
+        this.data = data;
     }
 
     private Object getValue(String columnLabel) throws SQLException,
             InvocationTargetException, IllegalAccessException {
-        T row = currentRow();
-        MethodDescriptor pd = byLabel.get(columnLabel);
-        if (pd == null) {
-            throw new SQLException("Class does not have a column named (" + columnLabel + ") in RsColumn annotation");
-        }
-        return pd.getMethod().invoke(row);
+        return data.getByLabel(index(), columnLabel);
     }
 
     private Object getValue(Integer columnIndex) throws SQLException,
             InvocationTargetException, IllegalAccessException {
-        T row = currentRow();
-        MethodDescriptor md = byIndex.get(columnIndex);
-        if (md == null) {
-            throw new SQLException("Class does not have a column indexed (" + columnIndex + ") in RsColumn annotation");
-        }
-        return md.getMethod().invoke(row);
+        return data.getByIndex(index(), columnIndex);
     }
 
-    private T currentRow() {
-        if (index >= rows.size()) {
+    private int index() {
+        if (index >= data.size()) {
             throw new IndexOutOfBoundsException();
         }
-        return rows.get(index);
+        return index;
     }
 
     @Override
     public boolean next() throws SQLException {
-        return ++index < rows.size();
+        return ++index < data.size();
     }
 
     @Override
@@ -71,11 +50,19 @@ public abstract class BeanBackedResultSet<T> implements ResultSet {
         return index + 1;
     }
 
+    /* may be better to introduce another layer for these */
+/*
+    private final Map<Integer, MethodDescriptor> byIndex = new HashMap<Integer, MethodDescriptor>();
+    private final Map<String, MethodDescriptor> byLabel = new HashMap<String, MethodDescriptor>();
+*/
+
+
     /*
        Quite strict for now.
        RsColumn annotation has to be provided. Column label has to be provided (as value in RsColumn).
        Index is not mandatory, but any access to a not indexed column will result in an exception
     */
+/*
     private void introspect() {
         if (rows.size() == 0) {
             return;
@@ -100,39 +87,48 @@ public abstract class BeanBackedResultSet<T> implements ResultSet {
             throw new RuntimeException(e);
         }
     }
+*/
+    public static <T> SimpleResultSet createInstance(List<T> backingList) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(SimpleResultSet.class);
+        enhancer.setCallback(new Interceptor());
+        Object rs = enhancer.create(new Class[]{List.class}, new Object[]{backingList});
+        return (SimpleResultSet) rs;
+    }
 
     /*
         Effectively overrides <code>ResultSet</code> get methods.
      */
-    static class Interceptor implements MethodInterceptor {
+    private static class Interceptor implements MethodInterceptor {
 
         @Override
         public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-            if (method.getDeclaringClass() == BeanBackedResultSet.class) {
+            if (method.getDeclaringClass() == SimpleResultSet.class) {
                 return methodProxy.invokeSuper(obj, args);
             }
-            BeanBackedResultSet<?> mockResultSet = (BeanBackedResultSet<?>) obj;
+            SimpleResultSet mockResultSet = (SimpleResultSet) obj;
             String mName = method.getName();
             Class<?>[] pTypes = method.getParameterTypes();
             boolean isColumnGetter = mName.startsWith("get") && pTypes.length == 1;
             if (isColumnGetter && pTypes[0] == Integer.TYPE) { // retrieve by column idx
                 return mockResultSet.getValue((Integer) args[0]);
             }
-            if (isColumnGetter && pTypes[0] == String.class) { // retrieve by column name
+            if (isColumnGetter && pTypes[0] == String.class) { // retrieve by column label
                 return mockResultSet.getValue((String) args[0]);
             }
-            logger.debug("Returning default value for {}({})", method.getName(), Arrays.toString(method.getParameterTypes()));
             return Defaults.defaultValue(method.getReturnType());
         }
 
     }
 
-    public static <T> BeanBackedResultSet createInstance(List<T> backingList) {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(BeanBackedResultSet.class);
-        enhancer.setCallback(new Interceptor());
-        Object rs = enhancer.create(new Class[]{List.class}, new Object[]{backingList});
-        return (BeanBackedResultSet) rs;
+    public interface TabularDataProvider {
+
+        Object getByIndex(int row, int index);
+
+        Object getByLabel(int row, String label);
+
+        int size();
+
     }
 
 }

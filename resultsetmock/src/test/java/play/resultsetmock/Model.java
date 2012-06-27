@@ -1,6 +1,6 @@
 package play.resultsetmock;
 
-import com.google.common.collect.Lists;
+import play.baseline.model.Pet;
 import play.resultsetmock.annotations.Param;
 import play.resultsetmock.annotations.Query;
 

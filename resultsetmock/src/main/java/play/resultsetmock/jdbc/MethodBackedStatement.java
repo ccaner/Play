@@ -4,6 +4,7 @@ import com.google.common.base.Defaults;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import play.resultsetmock.jdbc.iki.SimpleResultSet;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,7 +14,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-public abstract class MethodBackedPreparedStatement implements PreparedStatement {
+/**
+ * An sql statement implementation that performs a method invocation.
+ *
+ * CallableStatement interface is chosen to make implementation as generic as possible (hopefully)
+ */
+public abstract class MethodBackedStatement implements CallableStatement {
 
     private Invocation invocation;
 
@@ -21,13 +27,13 @@ public abstract class MethodBackedPreparedStatement implements PreparedStatement
     @SuppressWarnings("unchecked")
     public ResultSet executeQuery() throws SQLException {
         try {
-            return BeanBackedResultSet.createInstance((List<Object>) invocation.invoke());
+            return SimpleResultSet.createInstance((List<Object>) invocation.invoke());
         } catch (Exception e) {
             throw new SQLException(e);
         }
     }
 
-    protected MethodBackedPreparedStatement(Object target, Method method) {
+    protected MethodBackedStatement(Object target, Method method) {
         this.invocation = new Invocation(target, method);
     }
 
@@ -39,10 +45,10 @@ public abstract class MethodBackedPreparedStatement implements PreparedStatement
 
         @Override
         public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-            if (method.getDeclaringClass() == MethodBackedPreparedStatement.class) {
+            if (method.getDeclaringClass() == MethodBackedStatement.class) {
                 return methodProxy.invokeSuper(obj, args);
             }
-            MethodBackedPreparedStatement mockPs = (MethodBackedPreparedStatement) obj;
+            MethodBackedStatement mockPs = (MethodBackedStatement) obj;
             String mName = method.getName();
             Class<?>[] pTypes = method.getParameterTypes();
             boolean isSetter = mName.startsWith("set") && pTypes.length == 2;
@@ -79,7 +85,7 @@ public abstract class MethodBackedPreparedStatement implements PreparedStatement
 
     public static PreparedStatement createInstance(Object model, Method method) {
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(MethodBackedPreparedStatement.class);
+        enhancer.setSuperclass(MethodBackedStatement.class);
         enhancer.setCallback(new Interceptor());
         Object rs = enhancer.create(new Class[]{Object.class, Method.class}, new Object[]{model, method});
         return (PreparedStatement) rs;

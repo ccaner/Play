@@ -6,31 +6,25 @@
 
     <parent>
         <groupId>ccaner.play</groupId>
-        <artifactId>play-pom</artifactId>
+        <artifactId>baseline</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>ccaner.play</groupId>
-    <artifactId>resultsetmock</artifactId>
-    <packaging>jar</packaging>
+    <groupId>ccaner.play.baseline</groupId>
+    <artifactId>service</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>com.google.collections</groupId>
-            <artifactId>google-collections</artifactId>
-            <version>1.0</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>11.0.2</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
         </dependency>
         <dependency>
-            <groupId>ccaner.play.remotemock</groupId>
-            <artifactId>service</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
         </dependency>
     </dependencies>
-
-
 </project>

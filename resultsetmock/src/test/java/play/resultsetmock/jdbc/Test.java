@@ -3,9 +3,9 @@ package play.resultsetmock.jdbc;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.mockito.Mockito;
+import play.baseline.model.Pet;
 import play.resultsetmock.IModel;
 import play.resultsetmock.Model;
-import play.resultsetmock.Pet;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -31,15 +31,20 @@ public class Test {
         proxy = new Model(inner);
         when(inner.loadPets(anyString(), anyInt())).thenReturn(
                 Lists.<Pet>newArrayList(
+/*
                         new Pet("pet", 1, "Caner"),
                         new Pet("pet2", 2, "Caner2")
+*/
+                        new Pet(),
+                        new Pet()
         ));
     }
 
     @org.junit.Test
     public void testRsOnly() throws SQLException {
 
-        ResultSet rs = MockJdbcFactory.createResultSet(proxy.loadPets(null, 0));
+        ResultSet rs = null;
+//        ResultSet rs = MockJdbcFactory.createResultSet(proxy.loadPets(null, 0));
 
         assertResultSet(rs);
     }
