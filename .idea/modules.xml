@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/baseline/baseline.iml" filepath="$PROJECT_DIR$/baseline/baseline.iml" />
+      <module fileurl="file://$PROJECT_DIR$/beanhide/beanhide.iml" filepath="$PROJECT_DIR$/beanhide/beanhide.iml" />
+      <module fileurl="file://$PROJECT_DIR$/jetty/jetty.iml" filepath="$PROJECT_DIR$/jetty/jetty.iml" />
+      <module fileurl="file://$PROJECT_DIR$/play-pom.iml" filepath="$PROJECT_DIR$/play-pom.iml" />
+      <module fileurl="file://$PROJECT_DIR$/remotemock/remotemock.iml" filepath="$PROJECT_DIR$/remotemock/remotemock.iml" />
+      <module fileurl="file://$PROJECT_DIR$/resultsetmock/resultsetmock.iml" filepath="$PROJECT_DIR$/resultsetmock/resultsetmock.iml" />
+      <module fileurl="file://$PROJECT_DIR$/baseline/service/service.iml" filepath="$PROJECT_DIR$/baseline/service/service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/baseline/stub-service/stub-service.iml" filepath="$PROJECT_DIR$/baseline/stub-service/stub-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/baseline/tests/tests.iml" filepath="$PROJECT_DIR$/baseline/tests/tests.iml" />
+    </modules>
+  </component>
+</project>
+
