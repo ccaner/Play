@@ -17,9 +17,4 @@
         <constructor-arg index="1" ref="remoteRegistry"/>
     </bean>
 
-    <bean name="mockMyService" factory-bean="mockFactory" factory-method="mockAndAttach" >
-        <constructor-arg value="play.baseline.BaselineService" />
-        <constructor-arg value="MyService" />
-    </bean>
-
 </beans>

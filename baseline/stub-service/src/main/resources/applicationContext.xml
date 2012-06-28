@@ -17,7 +17,12 @@
         <constructor-arg index="2" value="1299"/>
     </bean>
 
-    <bean name="mock.myService" class="play.baseline.stub.StubMyServiceImpl" />
+    <bean id="mock.petDao" class="play.baseline.stub.StubPetDaoImpl" />
 
-
+    <bean id="mockDatabase" class="play.baseline.stub.MockDatabaseImpl" />
+    
+    <bean id="mock.dataSource" class="play.resultsetmock.jdbc.MockJdbcFactory" factory-method="createDataSource">
+        <constructor-arg ref="mockDatabase" />
+    </bean>
+    
 </beans>

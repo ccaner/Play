@@ -1,6 +1,9 @@
-package play.resultsetmock.jdbc;
+package remotemock;
 
 import org.junit.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 import play.baseline.dao.PetDao;
 import play.baseline.dao.PetDaoImpl;
 import play.baseline.model.Pet;
@@ -11,25 +14,16 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Assume db contains;
- * 
- * <table>
- *     <tr><th>name</th><th>age</th><th>owner_firstname</th><th>owner_lastname</th></tr>
- *     <tr><td>Cango</td><td>3</td><td>Osman</td><td>Bosman</td></tr>
- *     <tr><td>Koko</td><td>8</td><td>Hakan</td><td>Tarkan</td></tr>
- *     <tr><td>Toto</td><td>9</td><td>Osman</td><td>Bosman</td></tr>
- * </table>
- *
- * The aim is to make this test pass using different DataSources
+ * Use actual db.
  */
 public class UnitTestPetDao {
 
-    DataSource dataSource; // injected
+    private static PetDao petDao; // class under test
 
-    private PetDao petDao; // class under test
-    
-    public void init() {
-        petDao = new PetDaoImpl(dataSource);
+    @BeforeClass
+    public static void setup() {
+        ApplicationContext context = new ClassPathXmlApplicationContext("dao-context.xml");
+        petDao = (PetDao) context.getBean("petDao");
     }
     
     @org.junit.Test

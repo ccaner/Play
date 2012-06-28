@@ -7,20 +7,13 @@
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
 
+    <import resource="dao-context.xml"/>
+
     <bean name="baselineService" class="play.baseline.BaselineServiceImpl" >
         <property name="petDao" ref="petDao" />
     </bean>
 
-    <bean name="petDao" class="play.baseline.dao.PetDaoImpl" >
-        <constructor-arg ref="embeddedDb" />
-    </bean>
-
-    <jdbc:embedded-database id="embeddedDb" type="HSQL">
-        <jdbc:script location="classpath:db/schema.sql"/>
-        <jdbc:script location="classpath:db/pets.sql"/>
-    </jdbc:embedded-database>
-
-    <bean name="myServiceExporter"
+    <bean name="baselineServiceExporter"
           class="play.baseline.util.SimpleHttpExporter">
         <constructor-arg ref="baselineService"/>
         <constructor-arg value="play.baseline.BaselineService"/>
@@ -30,7 +23,7 @@
           class="org.springframework.remoting.support.SimpleHttpServerFactoryBean">
         <property name="contexts">
             <util:map>
-                <entry key="/" value-ref="myServiceExporter"/>
+                <entry key="/" value-ref="baselineServiceExporter"/>
             </util:map>
         </property>
         <property name="port" value="8118" />

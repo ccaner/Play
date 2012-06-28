@@ -60,11 +60,12 @@ public class RemotableMockFactory {
         @Override
         public Object answer(InvocationOnMock invocation) throws Throwable {
             /* mockito passes toString calls to default answer */
-//            if (ClassUtils.declaresMethod(serviceInterface, invocation.getMethod())) {
+            if (ClassUtil.declaresMethod(serviceInterface, invocation.getMethod())) {
+                System.out.println("invocation = " + invocation);
                 throw new InvokeLocalMethodException();
-//            }
-//            return ClassUtil.invokeMethodOnProxy(invocation.getMock(),
-//                    invocation.getMethod(), invocation.getArguments());
+            }
+            return ClassUtil.invokeMethodOnProxy(invocation.getMock(),
+                    invocation.getMethod(), invocation.getArguments());
         }
     }
 

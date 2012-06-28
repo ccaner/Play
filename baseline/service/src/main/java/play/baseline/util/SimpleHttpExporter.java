@@ -77,6 +77,7 @@ public class SimpleHttpExporter implements HttpHandler {
                 return new Callable<Object>() {
                     @Override
                     public Object call() throws Exception {
+                        System.out.println("method = " + getArgs(method, requestURI.getPath())[0]);
                         return method.invoke(service, getArgs(method, requestURI.getPath()));
                     }
                 };

@@ -29,5 +29,10 @@
             <artifactId>remotemock</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>ccaner.play</groupId>
+            <artifactId>resultsetmock</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
