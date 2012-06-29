@@ -14,13 +14,18 @@ import java.util.List;
 public class MockDatabaseImpl implements MockDatabase {
 
     @Override
-    public QueryResult queryPetsTable(String name, int age) {
+    public Object queryPetsTable(String name, int age) {
+        return null;
+    }
+
+    @Override
+    public Object queryPetsGrouped(String name, int age) {
         return null;
     }
 
 /*
     @Override
-    public QueryResult queryPetsTable(String ownerFirstName) {
+    public Object queryPetsTable(String ownerFirstName) {
         return null;
     }
 */

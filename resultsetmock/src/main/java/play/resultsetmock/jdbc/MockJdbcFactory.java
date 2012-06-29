@@ -12,7 +12,7 @@ import java.sql.ResultSet;
 
 import static org.mockito.Mockito.withSettings;
 
-public abstract class MockJdbcFactory {
+public class MockJdbcFactory {
 
     /**
      * Creates a DataSource that fetches its data by invoking methods on the given object
@@ -35,6 +35,10 @@ public abstract class MockJdbcFactory {
      * Creates a DataSource that fetches its data by invoking methods on the given object
      * Searches for <code>@Query</code> on the object
      */
+    public static <T> DataSource mockDataSource(Class<T> interfaceClass) {
+        T mock = Mockito.mock(interfaceClass);
+        return createDataSource(mock);
+    }
 
 
     /**

@@ -1,9 +1,11 @@
 package play.baseline;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import play.baseline.dao.PetDao;
 import play.baseline.model.Pet;
 
 import java.util.List;
+import java.util.Map;
 
 public class BaselineServiceImpl implements BaselineService {
     
@@ -12,6 +14,11 @@ public class BaselineServiceImpl implements BaselineService {
     @Override
     public List<Pet> listPets(String name, int age) {
         return petDao.loadPets(name, age);
+    }
+
+    @Override
+    public Map<String, List<Pet>> listGrouped(@PathVariable("name") String name, @PathVariable("age") int age) {
+        return petDao.loadPetsGrouped(name, age);
     }
 
     @Override

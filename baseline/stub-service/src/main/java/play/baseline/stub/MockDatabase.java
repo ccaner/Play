@@ -9,15 +9,19 @@ import play.resultsetmock.annotations.Query;
 public interface MockDatabase {
 
     @Query("select * from pets where name = ? and age = ?")
-    public QueryResult queryPetsTable(
+    public Object queryPetsTable(
             @Param("name") String name,
             @Param("age") int age);
 
 /*
     @Query("select * from pets where owner_firstname = ?")
-    public QueryResult queryPetsTable(
+    public Object queryPetsTable(
             @Param("owner_firstname") String ownerFirstName);
 */
 
+    @Query("{ call load_pets_grouped(?, ?) }")
+    public Object queryPetsGrouped(
+            @Param("name") String name,
+            @Param("age") int age);
 
 }

@@ -4,6 +4,7 @@ import com.google.common.base.Defaults;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.springframework.core.annotation.AnnotationUtils;
 import play.resultsetmock.annotations.Query;
 
 import java.lang.reflect.Method;
@@ -15,6 +16,10 @@ import java.util.List;
 public abstract class ObjectBackedConnection implements Connection {
     
     private Object model;
+
+    protected ObjectBackedConnection(Object model) {
+        this.model = model;
+    }
 
     static class Interceptor implements MethodInterceptor {
 
@@ -36,22 +41,24 @@ public abstract class ObjectBackedConnection implements Connection {
 
         public static Method getQueryMethod(Object model, String sql) {
             for (Method method : model.getClass().getDeclaredMethods()) {
-                Query query = method.getAnnotation(Query.class);
+                Query query = AnnotationUtils.findAnnotation(method, Query.class);
                 if (query != null && sql.contains(query.value())) {
                     return method;
                 }
+                
+                
             }
             return null;
         }
 
     }
 
-    public static <T> BeanBackedResultSet createInstance(Object model) {
+    public static <T> Connection createInstance(Object model) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(ObjectBackedConnection.class);
         enhancer.setCallback(new ObjectBackedConnection.Interceptor());
-        Object rs = enhancer.create(new Class[]{List.class}, new Object[]{model});
-        return (BeanBackedResultSet) rs;
+        Object conn = enhancer.create(new Class[]{Object.class}, new Object[]{model});
+        return (Connection) conn;
     }
     
 

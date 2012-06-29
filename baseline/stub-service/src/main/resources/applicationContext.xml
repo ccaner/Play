@@ -17,7 +17,9 @@
         <constructor-arg index="2" value="1299"/>
     </bean>
 
-    <bean id="mock.petDao" class="play.baseline.stub.StubPetDaoImpl" />
+    <bean id="mock.petDao" class="play.baseline.stub.StubPetDaoImpl">
+        <constructor-arg ref="mock.dataSource" />
+    </bean>
 
     <bean id="mockDatabase" class="play.baseline.stub.MockDatabaseImpl" />
     

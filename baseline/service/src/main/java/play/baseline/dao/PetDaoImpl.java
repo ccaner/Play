@@ -1,16 +1,17 @@
 package play.baseline.dao;
 
+import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.baseline.model.Pet;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
+import java.util.*;
 
 public class PetDaoImpl implements PetDao {
+    
+    public static Logger logger = LoggerFactory.getLogger(PetDaoImpl.class);
 
     DataSource dataSource;
 
@@ -44,14 +45,14 @@ public class PetDaoImpl implements PetDao {
                 pets.add(p);
             }
         } catch (SQLException e) {
-            // log
+            logger.error("DAO Error: ", e);
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (ps != null) ps.close();
                 if (conn != null) conn.close();
             } catch (Exception e) {
-                // log
+                logger.error("DAO Error!!!: ", e);
             }
         }
         return pets;
@@ -82,14 +83,64 @@ public class PetDaoImpl implements PetDao {
                 pets.add(p);
             }
         } catch (SQLException e) {
-            // log
+            logger.error("DAO Error: ", e);
         } finally {
             try {
                 if (rs != null) rs.close();
                 if (ps != null) ps.close();
                 if (conn != null) conn.close();
             } catch (Exception e) {
-                // log
+                logger.error("DAO Error!!!: ", e);
+            }
+        }
+        return pets;
+    }
+
+    @Override
+    public Map<String, List<Pet>> loadPetsGrouped(String name, int age) {
+        List<Pet> petsByName = new ArrayList<Pet>();
+        List<Pet> petsByAge = new ArrayList<Pet>();
+
+        Map<String, List<Pet>> pets = new LinkedHashMap<String, List<Pet>>();
+        pets.put("byName", petsByName);
+        pets.put("byAge", petsByAge);
+
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        try {
+            String sql = "{ call load_pets_grouped(?, ?) }";
+
+            conn = dataSource.getConnection();
+            cs = conn.prepareCall(sql);
+            cs.setString(1, name);
+            cs.setInt(2, age);
+
+            boolean hasResult = cs.execute();
+
+            List<Pet> petList = petsByName;
+            while (hasResult) {
+                ResultSet rs = cs.getResultSet();
+                while (rs.next()) {
+                    Pet p = new Pet();
+                    p.setId(rs.getInt("id"));
+                    p.setName(rs.getString("name"));
+                    p.setAge(rs.getInt("age"));
+                    p.setOwner(rs.getString("owner_firstname") + " " + rs.getString("owner_lastname"));
+                    petList.add(p);
+                }
+                petList = petsByAge;
+                rs.close();
+                hasResult = cs.getMoreResults();
+            }
+        } catch (SQLException e) {
+            logger.error("DAO Error: ", e);
+        } finally {
+            try {
+                if (cs != null) cs.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                logger.error("DAO Error!!!: ", e);
             }
         }
         return pets;

@@ -11,8 +11,9 @@
         <constructor-arg ref="dataSource"/>
     </bean>
 
-    <jdbc:embedded-database id="dataSource" type="HSQL">
+    <jdbc:embedded-database id="dataSource" type="DERBY">
         <jdbc:script location="classpath:db/schema.sql"/>
+        <jdbc:script location="classpath:db/proc.sql"/>
         <jdbc:script location="classpath:db/pets.sql"/>
     </jdbc:embedded-database>
 

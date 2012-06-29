@@ -12,11 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import play.baseline.Main;
-import play.baseline.dao.PetDao;
 import play.baseline.model.Pet;
 import play.baseline.stub.MockDatabase;
 import play.baseline.stub.QueryResult;
+import play.baseline.stub.SimpleQueryResult;
 import play.remotemock.util.RemotableMockFactory;
+import remotemock.data.PetDbRow;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -26,9 +27,7 @@ import java.net.URL;
 import java.util.List;
 
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * Test everything up to Jdbc interfaces on a running server.
@@ -45,6 +44,7 @@ public class MockTest_UptoJdbcInterfaces {
 
     private static Process server;
 
+/*
     @BeforeClass
     public static void startServer() throws IOException, InterruptedException {
         String classpath = System.getProperty("java.class.path");
@@ -59,39 +59,44 @@ public class MockTest_UptoJdbcInterfaces {
         Thread.sleep(5000);
     }
 
+    @AfterClass
+    public static void stopServer() throws IOException, InterruptedException {
+        server.destroy();
+    }
+*/
 
     @Test
     public void testFindPetByNameAndAge() throws Exception {
         MockDatabase mockDatabase = mockFactory.mockAndAttach(MockDatabase.class, "MockDatabase");
 
-        doReturn(new QueryResult() {}).when(mockDatabase).queryPetsTable(eq("Cango"), 33);
+        PetDbRow dbPet = new PetDbRow();
+        dbPet.setId(19);
+        dbPet.setAge(2);
+        dbPet.setName("Ponpon");
+        dbPet.setOwnerFirstName("Kenan");
+        dbPet.setOwnerLastName("Kantar");
+        doReturn(Lists.newArrayList(dbPet)).when(mockDatabase).queryPetsTable(eq("Ponpon"), eq(2));
 
-
-        String query = PATH_QUERY_BY_NAME.replace("{name}", "Cango").replace("age", "33");
+        String query = PATH_QUERY_BY_NAME.replace("{name}", "Ponpon").replace("{age}", "2");
         String response = getResponse(query);
 
         ObjectMapper mapper = new ObjectMapper();
         List<Pet> pets = mapper.readValue(response, new TypeReference<List<Pet>>() {});
 
         Pet p = new Pet();
-        p.setId(55);
-        p.setName("Cango");
-        p.setAge(33);
-        p.setOwner("Osman Bosman");
+        p.setId(19);
+        p.setName("Ponpon");
+        p.setAge(2);
+        p.setOwner("Kenan Kantar");
         Assert.assertEquals("Invalid return value", Lists.newArrayList(p), pets);
 
-        verify(mockDatabase, times(1)).queryPetsTable(eq("Cango"), 33);
+        verify(mockDatabase, times(1)).queryPetsTable(eq("Ponpon"), eq(2));
     }
 
     private String getResponse(String path) throws IOException {
         URL url = new URL("http://localhost:8118" + path.replace(" ", "%20"));
         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
         return reader.readLine();
-    }
-
-    @AfterClass
-    public static void stopServer() throws IOException, InterruptedException {
-        server.destroy();
     }
 
 }

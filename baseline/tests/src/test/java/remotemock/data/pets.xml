@@ -1,17 +1,20 @@
 <pets>
     <pet>
+        <id>1</id>
         <name>Cango</name>
         <age>3</age>
         <owner_firstname>Osman</owner_firstname>
         <owner_lastname>Bosman</owner_lastname>
     </pet>
     <pet>
+        <id>2</id>
         <name>Koko</name>
         <age>8</age>
         <owner_firstname>Hakan</owner_firstname>
         <owner_lastname>Tarkan</owner_lastname>
     </pet>
     <pet>
+        <id>3</id>
         <name>Popo</name>
         <age>3</age>
         <owner_firstname>Osman</owner_firstname>

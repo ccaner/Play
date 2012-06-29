@@ -4,6 +4,7 @@ import com.google.common.base.Defaults;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import play.resultsetmock.jdbc.iki.data.TabularDataProvider;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,14 +24,32 @@ public abstract class SimpleResultSet implements ResultSet {
         this.data = data;
     }
 
-    private Object getValue(String columnLabel) throws SQLException,
-            InvocationTargetException, IllegalAccessException {
+    private Object getValue(String columnLabel) throws SQLException {
         return data.getByLabel(index(), columnLabel);
     }
 
-    private Object getValue(Integer columnIndex) throws SQLException,
-            InvocationTargetException, IllegalAccessException {
+    private Object getValue(Integer columnIndex) throws SQLException {
         return data.getByIndex(index(), columnIndex);
+    }
+
+    @Override
+    public Object getObject(int columnIndex) throws SQLException {
+        Object value = getValue(columnIndex);
+        try {
+            return ResultSetDataProviderFactory.createDataProvider(value);
+        } catch (IllegalArgumentException e) {
+            return value;
+        }
+    }
+
+    @Override
+    public Object getObject(String columnLabel) throws SQLException {
+        Object value = getValue(columnLabel);
+        try {
+            return ResultSetDataProviderFactory.createDataProvider(value);
+        } catch (IllegalArgumentException e) {
+            return value;
+        }
     }
 
     private int index() {
@@ -88,11 +107,11 @@ public abstract class SimpleResultSet implements ResultSet {
         }
     }
 */
-    public static <T> SimpleResultSet createInstance(List<T> backingList) {
+    public static <T> SimpleResultSet createInstance(TabularDataProvider dataProvider) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(SimpleResultSet.class);
         enhancer.setCallback(new Interceptor());
-        Object rs = enhancer.create(new Class[]{List.class}, new Object[]{backingList});
+        Object rs = enhancer.create(new Class[]{TabularDataProvider.class}, new Object[]{dataProvider});
         return (SimpleResultSet) rs;
     }
 
@@ -121,14 +140,5 @@ public abstract class SimpleResultSet implements ResultSet {
 
     }
 
-    public interface TabularDataProvider {
-
-        Object getByIndex(int row, int index);
-
-        Object getByLabel(int row, String label);
-
-        int size();
-
-    }
 
 }
