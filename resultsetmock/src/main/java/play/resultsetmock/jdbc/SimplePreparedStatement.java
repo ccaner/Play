@@ -4,22 +4,16 @@ import com.google.common.base.Defaults;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import play.resultsetmock.jdbc.iki.SimpleResultSet;
+import play.resultsetmock.jdbc.data.ResultSetDataProviderFactory;
+import play.resultsetmock.jdbc.data.TabularDataProvider;
+import play.resultsetmock.util.Invocation;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
-/**
- * An sql statement implementation that performs a method invocation.
- *
- * CallableStatement interface is chosen to make implementation as generic as possible (hopefully)
- */
-public abstract class MethodBackedStatement implements CallableStatement {
+public abstract class SimplePreparedStatement extends SimpleStatement implements PreparedStatement {
 
     private Invocation invocation;
 
@@ -27,13 +21,18 @@ public abstract class MethodBackedStatement implements CallableStatement {
     @SuppressWarnings("unchecked")
     public ResultSet executeQuery() throws SQLException {
         try {
-            return SimpleResultSet.createInstance((List<Object>) invocation.invoke());
+            Object result = invocation.invoke();
+            if (result instanceof ResultSet) {
+                return (ResultSet) result;
+            }
+            TabularDataProvider dataProvider = ResultSetDataProviderFactory.createDataProvider(result);
+            return DataProviderResultSet.createInstance(dataProvider);
         } catch (Exception e) {
             throw new SQLException(e);
         }
     }
 
-    protected MethodBackedStatement(Object target, Method method) {
+    protected SimplePreparedStatement(Object target, Method method) {
         this.invocation = new Invocation(target, method);
     }
 
@@ -45,10 +44,10 @@ public abstract class MethodBackedStatement implements CallableStatement {
 
         @Override
         public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-            if (method.getDeclaringClass() == MethodBackedStatement.class) {
+            if (method.getDeclaringClass() == SimplePreparedStatement.class) {
                 return methodProxy.invokeSuper(obj, args);
             }
-            MethodBackedStatement mockPs = (MethodBackedStatement) obj;
+            SimplePreparedStatement mockPs = (SimplePreparedStatement) obj;
             String mName = method.getName();
             Class<?>[] pTypes = method.getParameterTypes();
             boolean isSetter = mName.startsWith("set") && pTypes.length == 2;
@@ -61,34 +60,13 @@ public abstract class MethodBackedStatement implements CallableStatement {
 
     }
 
-    private static class Invocation {
-
-        final Object obj;
-        final Method method;
-        final Object[] args;
-
-        Invocation(Object obj, Method method) {
-            this.obj = obj;
-            this.method = method;
-            args = new Object[method.getParameterTypes().length];
-        }
-
-        private void setArgument(int index, Object val) {
-            args[index - 1] = val;
-        }
-
-        private Object invoke() throws InvocationTargetException, IllegalAccessException {
-            return method.invoke(obj, args);
-        }
-
-    }
-
     public static PreparedStatement createInstance(Object model, Method method) {
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(MethodBackedStatement.class);
+        enhancer.setSuperclass(SimplePreparedStatement.class);
         enhancer.setCallback(new Interceptor());
         Object rs = enhancer.create(new Class[]{Object.class, Method.class}, new Object[]{model, method});
         return (PreparedStatement) rs;
     }
+
 
 }

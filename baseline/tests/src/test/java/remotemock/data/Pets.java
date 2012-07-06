@@ -1,5 +1,7 @@
 package remotemock.data;
 
+import play.baseline.stub.data.PetDbRow;
+
 import java.util.ArrayList;
 import java.util.List;
 

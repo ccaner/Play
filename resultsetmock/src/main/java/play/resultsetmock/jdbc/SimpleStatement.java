@@ -1,4 +1,4 @@
-package play.resultsetmock.jdbc.iki;
+package play.resultsetmock.jdbc;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

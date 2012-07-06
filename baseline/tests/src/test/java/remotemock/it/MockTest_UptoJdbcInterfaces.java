@@ -3,24 +3,18 @@ package remotemock.it;
 import com.google.common.collect.Lists;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import play.baseline.Main;
 import play.baseline.model.Pet;
 import play.baseline.stub.MockDatabase;
-import play.baseline.stub.QueryResult;
-import play.baseline.stub.SimpleQueryResult;
+import play.baseline.stub.data.PetDbRow;
 import play.remotemock.util.RemotableMockFactory;
-import remotemock.data.PetDbRow;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -89,6 +83,26 @@ public class MockTest_UptoJdbcInterfaces {
         p.setAge(2);
         p.setOwner("Kenan Kantar");
         Assert.assertEquals("Invalid return value", Lists.newArrayList(p), pets);
+
+        verify(mockDatabase, times(1)).queryPetsTable(eq("Ponpon"), eq(2));
+    }
+
+    @Test
+    public void testCountPetsByAge() throws Exception {
+        MockDatabase mockDatabase = mockFactory.mockAndAttach(MockDatabase.class, "MockDatabase");
+
+        PetDbRow dbPet = new PetDbRow();
+        dbPet.setId(19);
+        dbPet.setAge(2);
+        dbPet.setName("Ponpon");
+        dbPet.setOwnerFirstName("Kenan");
+        dbPet.setOwnerLastName("Kantar");
+        doReturn(Lists.newArrayList(dbPet, dbPet)).when(mockDatabase).queryPetsTable(eq("Ponpon"), eq(2));
+
+        String query = PATH_QUERY_BY_NAME.replace("{age}", "2");
+        String response = getResponse(query);
+
+        Assert.assertEquals("Invalid return value", response, "2");
 
         verify(mockDatabase, times(1)).queryPetsTable(eq("Ponpon"), eq(2));
     }

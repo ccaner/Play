@@ -1,8 +1,10 @@
-package play.resultsetmock.jdbc.iki;
+package play.resultsetmock.jdbc;
 
+import com.google.common.base.Defaults;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.springframework.core.annotation.AnnotationUtils;
 import play.resultsetmock.annotations.Query;
 
 import java.lang.reflect.Method;
@@ -22,17 +24,27 @@ public abstract class SimpleConnection implements Connection {
 
     @Override
     public Statement createStatement() throws SQLException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     @Override
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return SimplePreparedStatement.createInstance(model, getQueryMethod(model, sql));
     }
 
     @Override
     public CallableStatement prepareCall(String sql) throws SQLException {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
+    }
+
+    public static Method getQueryMethod(Object model, String sql) {
+        for (Method method : model.getClass().getDeclaredMethods()) {
+            Query query = AnnotationUtils.findAnnotation(method, Query.class);
+            if (query != null && sql.contains(query.value())) {
+                return method;
+            }
+        }
+        return null;
     }
 
     static class Interceptor implements MethodInterceptor {
@@ -50,28 +62,17 @@ public abstract class SimpleConnection implements Connection {
             } else if (method.getName().equals("prepareCall")) {
                 return conn.prepareCall((String) args[0]);
             } else {
-                throw new UnsupportedOperationException("SimpleConnection does not support " + method);
+                return Defaults.defaultValue(method.getReturnType());
             }
         }
-
-        public static Method getQueryMethod(Object model, String sql) {
-            for (Method method : model.getClass().getDeclaredMethods()) {
-                Query query = method.getAnnotation(Query.class);
-                if (query != null && sql.contains(query.value())) {
-                    return method;
-                }
-            }
-            return null;
-        }
-
     }
 
-    public static <T> SimpleResultSet createInstance(Object model) {
+    public static <T> SimpleConnection createInstance(Object model) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(SimpleConnection.class);
         enhancer.setCallback(new SimpleConnection.Interceptor());
-        Object rs = enhancer.create(new Class[]{List.class}, new Object[]{model});
-        return (SimpleResultSet) rs;
+        Object rs = enhancer.create(new Class[]{Object.class}, new Object[]{model});
+        return (SimpleConnection) rs;
     }
 
 }

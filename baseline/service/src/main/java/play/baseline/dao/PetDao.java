@@ -14,5 +14,8 @@ public interface PetDao {
     /* Stupid operation to test stored proc */
     Map<String, List<Pet>> loadPetsGrouped(String name, int age);
 
+    /* Stupid operation to test stored proc */
+    int countPetsByAge(int age);
+
 
 }

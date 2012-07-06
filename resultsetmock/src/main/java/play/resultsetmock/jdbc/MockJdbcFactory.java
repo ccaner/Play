@@ -24,7 +24,7 @@ public class MockJdbcFactory {
                 @Override
                 public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                     if (method.getName().equals("getConnection")) {
-                        return ObjectBackedConnection.createInstance(database);
+                        return SimpleConnection.createInstance(database);
                     }
                     return Defaults.defaultValue(method.getReturnType());
                 }

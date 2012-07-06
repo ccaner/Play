@@ -19,4 +19,16 @@ public class StoredProcedures {
         conn.close();
     }
 
+    public static void count_by_age(int age, int[] count) throws SQLException {
+
+        Connection conn = DriverManager.getConnection("jdbc:default:connection");
+        PreparedStatement psAge = conn.prepareStatement("select count(*) from pets where age = ?");
+        psAge.setInt(1, age);
+        ResultSet rs = psAge.executeQuery();
+        rs.next();
+        count[0] = rs.getInt(1);
+
+        conn.close();
+    }
+
 }

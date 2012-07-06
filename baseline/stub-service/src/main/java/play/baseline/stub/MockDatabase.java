@@ -21,7 +21,12 @@ public interface MockDatabase {
 
     @Query("{ call load_pets_grouped(?, ?) }")
     public Object queryPetsGrouped(
-            @Param("name") String name,
-            @Param("age") int age);
+            @Param String name,
+            @Param int age);
+
+    @Query("{ call count_by_age(?, ?) }")
+    public Object countPetsByAge(
+            @Param int age,
+            @Param int[] count);
 
 }

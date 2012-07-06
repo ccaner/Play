@@ -26,6 +26,11 @@ public interface BaselineService {
             @PathVariable("ownerFirstName") String ownerFirstName
     );
 
+    @RequestMapping("/pets/count/age={age}")
+    int countPets(
+            @PathVariable("age") int age
+    );
+
     @RequestMapping("/doSomething")
     String returnSomething();
 

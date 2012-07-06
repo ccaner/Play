@@ -1,34 +1,54 @@
-package play.resultsetmock.jdbc.iki;
+package play.resultsetmock.jdbc;
 
 import com.google.common.base.Defaults;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import play.resultsetmock.jdbc.iki.data.TabularDataProvider;
-import play.resultsetmock.jdbc.util.Invocation;
+import play.resultsetmock.jdbc.data.ResultSetDataProviderFactory;
+import play.resultsetmock.jdbc.data.TabularDataProvider;
+import play.resultsetmock.util.Invocation;
 
 import java.lang.reflect.Method;
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public abstract class SimplePreparedStatement extends SimpleStatement implements PreparedStatement {
+public abstract class SimpleCallableStatement implements CallableStatement {
 
     private Invocation invocation;
 
     @Override
     @SuppressWarnings("unchecked")
-    public ResultSet executeQuery() throws SQLException {
+    public boolean execute() throws SQLException {
         try {
             Object result = invocation.invoke();
+            if (result instanceof ResultSet) {
+                return (ResultSet) result;
+            }
             TabularDataProvider dataProvider = ResultSetDataProviderFactory.createDataProvider(result);
-            return SimpleResultSet.createInstance(dataProvider);
+            return DataProviderResultSet.createInstance(dataProvider);
         } catch (Exception e) {
             throw new SQLException(e);
         }
     }
 
-    protected SimplePreparedStatement(Object target, Method method) {
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean execute() throws SQLException {
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public ResultSet getResultSet() throws SQLException {
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean getMoreResults() throws SQLException {
+    }
+
+    protected SimpleCallableStatement(Object target, Method method) {
         this.invocation = new Invocation(target, method);
     }
 
@@ -63,6 +83,4 @@ public abstract class SimplePreparedStatement extends SimpleStatement implements
         Object rs = enhancer.create(new Class[]{Object.class, Method.class}, new Object[]{model, method});
         return (PreparedStatement) rs;
     }
-
-
 }

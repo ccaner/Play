@@ -8,7 +8,7 @@ import java.lang.annotation.*;
 public @interface RsColumn {
 
     /* Result set column label */
-    String value();
+    String name();
 
     /* Result set column index */
     int index() default -1;

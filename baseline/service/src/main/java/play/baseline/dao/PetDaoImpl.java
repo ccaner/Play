@@ -60,7 +60,7 @@ public class PetDaoImpl implements PetDao {
 
     @Override
     public List<Pet> loadPets(String ownerFirstName) {
-        List<Pet> pets = new ArrayList<Pet>();
+        List<Pet> pets = new ArrayList<>();
 
         Connection conn = null;
         PreparedStatement ps = null;
@@ -98,8 +98,8 @@ public class PetDaoImpl implements PetDao {
 
     @Override
     public Map<String, List<Pet>> loadPetsGrouped(String name, int age) {
-        List<Pet> petsByName = new ArrayList<Pet>();
-        List<Pet> petsByAge = new ArrayList<Pet>();
+        List<Pet> petsByName = new ArrayList<>();
+        List<Pet> petsByAge = new ArrayList<>();
 
         Map<String, List<Pet>> pets = new LinkedHashMap<String, List<Pet>>();
         pets.put("byName", petsByName);
@@ -144,6 +144,36 @@ public class PetDaoImpl implements PetDao {
             }
         }
         return pets;
+    }
+
+    @Override
+    public int countPetsByAge(int age) {
+        Connection conn = null;
+        CallableStatement cs = null;
+
+        int count = -1;
+        try {
+            String sql = "{ call count_by_age(?, ?) }";
+
+            conn = dataSource.getConnection();
+            cs = conn.prepareCall(sql);
+            cs.setInt(1, age);
+            cs.registerOutParameter(2, Types.NUMERIC);
+
+            cs.execute();
+
+            count = cs.getInt(2);
+        } catch (SQLException e) {
+            logger.error("DAO Error: ", e);
+        } finally {
+            try {
+                if (cs != null) cs.close();
+                if (conn != null) conn.close();
+            } catch (Exception e) {
+                logger.error("DAO Error!!!: ", e);
+            }
+        }
+        return count;
     }
 
 

@@ -8,6 +8,6 @@ import java.lang.annotation.*;
 public @interface Param {
 
     /* Something to identify query, we will use SQL.contains */
-    String value();
+    String value() default "";
 
 }

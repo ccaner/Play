@@ -1,6 +1,10 @@
-package remotemock.data;
+package play.baseline.stub.data;
 
-public class PetDbRow {
+import play.resultsetmock.annotations.RsColumn;
+
+import java.io.Serializable;
+
+public class PetDbRow implements Serializable {
 
     private int id;
 
@@ -15,6 +19,7 @@ public class PetDbRow {
     public PetDbRow() {
     }
 
+    @RsColumn(name = "ID", index = 1)
     public int getId() {
         return id;
     }
@@ -23,6 +28,7 @@ public class PetDbRow {
         this.id = id;
     }
 
+    @RsColumn(name = "NAME", index = 2)
     public String getName() {
         return name;
     }
@@ -31,6 +37,7 @@ public class PetDbRow {
         this.name = name;
     }
 
+    @RsColumn(name = "AGE", index = 3)
     public int getAge() {
         return age;
     }
@@ -39,6 +46,7 @@ public class PetDbRow {
         this.age = age;
     }
 
+    @RsColumn(name = "OWNER_FIRSTNAME", index = 4)
     public String getOwnerFirstName() {
         return ownerFirstName;
     }
@@ -47,6 +55,7 @@ public class PetDbRow {
         this.ownerFirstName = ownerFirstName;
     }
 
+    @RsColumn(name = "OWNER_LASTNAME", index = 5)
     public String getOwnerLastName() {
         return ownerLastName;
     }

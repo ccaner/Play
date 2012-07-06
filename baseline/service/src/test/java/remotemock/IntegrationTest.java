@@ -14,6 +14,7 @@ import play.baseline.Main;
 import play.baseline.model.Pet;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -30,14 +31,19 @@ import static org.mockito.Mockito.doReturn;
 public class IntegrationTest {
 
     private static String PATH_QUERY_BY_NAME = "/pets/list/name={name}&age={age}";
+    private static String PATH_COUNT_BY_AGE = "/pets/count/age={age}";
 
     private static Process server;
 
     @BeforeClass
     public static void startServer() throws IOException, InterruptedException {
         String classpath = System.getProperty("java.class.path");
+        String javaHome = System.getProperty("java.home");
+        String javaBin = javaHome +
+                File.separator + "bin" +
+                File.separator + "java";
         String className = Main.class.getCanonicalName();
-        ProcessBuilder pb = new ProcessBuilder("java", "-cp", classpath, className, "-Dlog4j.debug=true");
+        ProcessBuilder pb = new ProcessBuilder(javaBin, "-cp", classpath, className);
         pb.inheritIO();
         server = pb.start();
         Thread.sleep(5000);
@@ -60,6 +66,14 @@ public class IntegrationTest {
         List<Pet> exptected = Lists.newArrayList(pet);
 
         Assert.assertEquals("Invalid return value", exptected, pets);
+    }
+
+    @org.junit.Test
+    public void testCountByAge() throws InterruptedException, IOException {
+        String query = PATH_COUNT_BY_AGE.replace("{age}", "9");
+        String response = getResponse(query);
+
+        Assert.assertEquals("Invalid return value", "2", response);
     }
 
     @AfterClass

@@ -17,13 +17,18 @@ public class BaselineServiceImpl implements BaselineService {
     }
 
     @Override
-    public Map<String, List<Pet>> listGrouped(@PathVariable("name") String name, @PathVariable("age") int age) {
+    public Map<String, List<Pet>> listGrouped(String name, int age) {
         return petDao.loadPetsGrouped(name, age);
     }
 
     @Override
     public List<Pet> listPets(String ownerFirstName) {
         return petDao.loadPets(ownerFirstName);
+    }
+
+    @Override
+    public int countPets(int age) {
+        return petDao.countPetsByAge(age);
     }
 
     @Override

@@ -1,26 +1,29 @@
-package play.resultsetmock.jdbc.iki;
+package play.resultsetmock.jdbc;
 
 import com.google.common.base.Defaults;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
-import play.resultsetmock.jdbc.iki.data.TabularDataProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import play.resultsetmock.jdbc.data.ResultSetDataProviderFactory;
+import play.resultsetmock.jdbc.data.TabularDataProvider;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
 
 /**
  * A TYPE_FORWARD_ONLY, CONCUR_READ_ONLY result set implementation.
  */
-public abstract class SimpleResultSet implements ResultSet {
+public abstract class DataProviderResultSet implements ResultSet {
+    
+    private static Logger logger = LoggerFactory.getLogger(DataProviderResultSet.class);
     
     private final TabularDataProvider data;
     private int index = -1;
 
-    public SimpleResultSet(TabularDataProvider data) {
+    public DataProviderResultSet(TabularDataProvider data) {
         this.data = data;
     }
 
@@ -38,6 +41,7 @@ public abstract class SimpleResultSet implements ResultSet {
         try {
             return ResultSetDataProviderFactory.createDataProvider(value);
         } catch (IllegalArgumentException e) {
+            logger.debug("Tried to intercept getObject invocation but didn't succeed.", e);
             return value;
         }
     }
@@ -48,6 +52,7 @@ public abstract class SimpleResultSet implements ResultSet {
         try {
             return ResultSetDataProviderFactory.createDataProvider(value);
         } catch (IllegalArgumentException e) {
+            logger.debug("Tried to intercept getObject invocation but didn't succeed.", e);
             return value;
         }
     }
@@ -69,50 +74,12 @@ public abstract class SimpleResultSet implements ResultSet {
         return index + 1;
     }
 
-    /* may be better to introduce another layer for these */
-/*
-    private final Map<Integer, MethodDescriptor> byIndex = new HashMap<Integer, MethodDescriptor>();
-    private final Map<String, MethodDescriptor> byLabel = new HashMap<String, MethodDescriptor>();
-*/
-
-
-    /*
-       Quite strict for now.
-       RsColumn annotation has to be provided. Column label has to be provided (as value in RsColumn).
-       Index is not mandatory, but any access to a not indexed column will result in an exception
-    */
-/*
-    private void introspect() {
-        if (rows.size() == 0) {
-            return;
-        }
-        try {
-            BeanInfo beanInfo = Introspector.getBeanInfo(rows.get(0).getClass());
-            MethodDescriptor[] propertyDescriptors = beanInfo.getMethodDescriptors();
-            for (MethodDescriptor pd : propertyDescriptors) {
-                RsColumn rsColumn = pd.getMethod().getAnnotation(RsColumn.class);
-                if (rsColumn != null) {
-                    if (pd.getMethod().getParameterTypes().length != 0 ||
-                            pd.getMethod().getReturnType() == Void.TYPE) {
-                        // not suitable as a column accessor. ignoring...
-                    }
-                    byLabel.put(rsColumn.value(), pd);
-                    if (rsColumn.index() > -1) {
-                        byIndex.put(rsColumn.index(), pd);
-                    }
-                }
-            }
-        } catch (IntrospectionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-*/
-    public static <T> SimpleResultSet createInstance(TabularDataProvider dataProvider) {
+    public static <T> DataProviderResultSet createInstance(TabularDataProvider dataProvider) {
         Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(SimpleResultSet.class);
+        enhancer.setSuperclass(DataProviderResultSet.class);
         enhancer.setCallback(new Interceptor());
         Object rs = enhancer.create(new Class[]{TabularDataProvider.class}, new Object[]{dataProvider});
-        return (SimpleResultSet) rs;
+        return (DataProviderResultSet) rs;
     }
 
     /*
@@ -122,10 +89,10 @@ public abstract class SimpleResultSet implements ResultSet {
 
         @Override
         public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
-            if (method.getDeclaringClass() == SimpleResultSet.class) {
+            if (method.getDeclaringClass() == DataProviderResultSet.class) {
                 return methodProxy.invokeSuper(obj, args);
             }
-            SimpleResultSet mockResultSet = (SimpleResultSet) obj;
+            DataProviderResultSet mockResultSet = (DataProviderResultSet) obj;
             String mName = method.getName();
             Class<?>[] pTypes = method.getParameterTypes();
             boolean isColumnGetter = mName.startsWith("get") && pTypes.length == 1;
