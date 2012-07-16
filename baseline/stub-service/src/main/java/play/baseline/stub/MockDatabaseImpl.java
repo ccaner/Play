@@ -23,6 +23,11 @@ public class MockDatabaseImpl implements MockDatabase {
         return null;
     }
 
+    @Override
+    public Object countPetsByAge(@Param int age, @Param int[] count) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
 /*
     @Override
     public Object queryPetsTable(String ownerFirstName) {

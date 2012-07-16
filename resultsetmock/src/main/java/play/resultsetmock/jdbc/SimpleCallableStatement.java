@@ -16,6 +16,7 @@ import java.sql.SQLException;
 
 public abstract class SimpleCallableStatement implements CallableStatement {
 
+/*
     private Invocation invocation;
 
     @Override
@@ -83,4 +84,5 @@ public abstract class SimpleCallableStatement implements CallableStatement {
         Object rs = enhancer.create(new Class[]{Object.class, Method.class}, new Object[]{model, method});
         return (PreparedStatement) rs;
     }
+*/
 }

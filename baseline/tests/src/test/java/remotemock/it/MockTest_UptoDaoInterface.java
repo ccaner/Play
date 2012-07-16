@@ -42,7 +42,7 @@ public class MockTest_UptoDaoInterface {
 
     private static Process server;
 
-    @BeforeClass
+   // @BeforeClass
     public static void startServer() throws IOException, InterruptedException {
         String classpath = System.getProperty("java.class.path");
         String javaHome = System.getProperty("java.home");

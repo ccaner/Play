@@ -32,7 +32,7 @@ public class RemotableInvocationHandler<T> implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         if (method.getDeclaringClass().equals(Remotable.class)) {
-            //logControl(method, args);
+            logControl(method, args);
             return method.invoke(helper, args);
         }
         // we volunteer to handle toString or hashCode here
@@ -43,17 +43,12 @@ public class RemotableInvocationHandler<T> implements InvocationHandler {
                 logRemote(method, args, result);
                 return result;
             } catch (InvocationTargetException e) {
-                System.out.println("e = " + e.getCause());
-                System.out.println("e5 = " + e.getCause().getCause());
                 if (InvokeLocalMethodException.class.isInstance(e.getCause())) {
-                    System.out.println("e2 = " + e);
                     Object result = method.invoke(helper.localObject, args);
                     logRedirect(method, args, result);
                     return result;
                 }
                 throw e.getCause();
-            } catch (Exception e) {
-                System.out.println("e3 = " + e);
             }
         }
         Object result = method.invoke(helper.localObject, args);

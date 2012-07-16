@@ -54,12 +54,13 @@ public class RmiUtil {
         @see http://stackoverflow.com/questions/3779134/spring-two-way-rmi-callback-from-server-executing-on-client-side
      */
     @SuppressWarnings("unchecked")
-    public static <T> T registerService(T service, Class<T> serviceInterface, int servicePort) throws RemoteException {
+    public static <T> T createStub(T service, Class<T> serviceInterface, int servicePort) throws RemoteException {
         class UnsafeRmiServiceExporter extends RmiServiceExporter {
             @Override
             public Remote getObjectToExport() {
                 return super.getObjectToExport();
             }
+            
         }
         UnsafeRmiServiceExporter exporter = new UnsafeRmiServiceExporter();
         exporter.setService(service);
@@ -85,8 +86,54 @@ public class RmiUtil {
         return (T) pf.getProxy();
     }
 
+    /* 
+        Does the same thing as the overloaded method. But does not require an interface (this means uses cglib)
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T createStub(T service, int servicePort) throws RemoteException {
+        class UnsafeRmiServiceExporter extends RmiServiceExporter {
+            @Override
+            public Remote getObjectToExport() {
+                return super.getObjectToExport();
+            }
+
+            @Override
+            protected Object getProxyForService() {
+                ProxyFactory proxyFactory = new ProxyFactory();
+                proxyFactory.setTarget(getService());
+                proxyFactory.setOpaque(true);
+                return proxyFactory.getProxy(getBeanClassLoader());
+            }
+        }
+        UnsafeRmiServiceExporter exporter = new UnsafeRmiServiceExporter();
+        exporter.setService(service);
+        Remote remoteProxy = exporter.getObjectToExport();
+
+        final RmiInvocationHandler stub = (RmiInvocationHandler) UnicastRemoteObject.
+                exportObject(remoteProxy, servicePort);
+
+        class TargetInterfaceWrapper implements MethodInterceptor, Serializable {
+            @Override
+            public Object invoke(MethodInvocation invocation) throws Throwable {
+                try {
+                    return stub.invoke(new RemoteInvocation(invocation));
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
+            }
+        }
+
+        ProxyFactory pf = new ProxyFactory();
+        pf.setTargetClass(service.getClass());
+        pf.addInterface(Serializable.class);
+        return (T) pf.getProxy();
+    }
+
     public static String getRmiUrl(String host, int port, String serviceName) {
         return "rmi://" + host + ":" + port + "/" + serviceName;
     }
+    
+    
+    
 
 }

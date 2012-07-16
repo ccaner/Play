@@ -107,5 +107,4 @@ public abstract class DataProviderResultSet implements ResultSet {
 
     }
 
-
 }

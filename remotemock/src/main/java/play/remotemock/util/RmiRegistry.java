@@ -31,8 +31,12 @@ public class RmiRegistry {
         RmiUtil.exportService(service, serviceName, serviceInterface, host, port, servicePort);
     }
 
-    public <T> T registerService(T service, Class<T> serviceInterface) throws RemoteException {
-        return RmiUtil.registerService(service, serviceInterface, servicePort);
+    public <T> T createStub(T service, Class<T> serviceInterface) throws RemoteException {
+        return RmiUtil.createStub(service, serviceInterface, servicePort);
+    }
+
+    public <T> T createStub(T service) throws RemoteException {
+        return RmiUtil.createStub(service, servicePort);
     }
 
     public <T> T obtainServiceClient(Class<T> service, String serviceName) {

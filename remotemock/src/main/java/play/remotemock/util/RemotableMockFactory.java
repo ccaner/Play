@@ -1,6 +1,5 @@
 package play.remotemock.util;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -29,7 +28,7 @@ public class RemotableMockFactory {
         Remotable<T> backend = remoteRegistry.obtainServiceClient(Remotable.class, serviceName + "Remote");
 
         T mock = Mockito.mock(serviceInterface, Mockito.withSettings().defaultAnswer(defaultAnswer));
-        T localStub = localRegistry.registerService(mock, serviceInterface);
+        T localStub = localRegistry.createStub(mock, serviceInterface);
         backend.attachRemote(localStub);
         backend.switchRemoteModeOn();
         RemoteTestUtil.mockToRemotable.put(mock, backend);
@@ -42,7 +41,7 @@ public class RemotableMockFactory {
         Remotable<T> backend = remoteRegistry.obtainServiceClient(Remotable.class, serviceName + "Remote");
 
         T mock = Mockito.mock(serviceInterface, defaultAnswer);
-        T localStub = localRegistry.registerService(mock, serviceInterface);
+        T localStub = localRegistry.createStub(mock, serviceInterface);
         backend.attachRemote(localStub);
         backend.switchRemoteModeOn();
         RemoteTestUtil.mockToRemotable.put(mock, backend);
@@ -61,7 +60,6 @@ public class RemotableMockFactory {
         public Object answer(InvocationOnMock invocation) throws Throwable {
             /* mockito passes toString calls to default answer */
             if (ClassUtil.declaresMethod(serviceInterface, invocation.getMethod())) {
-                System.out.println("invocation = " + invocation);
                 throw new InvokeLocalMethodException();
             }
             return ClassUtil.invokeMethodOnProxy(invocation.getMock(),
