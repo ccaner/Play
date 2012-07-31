@@ -31,31 +31,12 @@ import static org.mockito.Mockito.*;
  * Test everything up to Dao interface on a running server.
  * This excludes dao impl (possible resultset mappers etc) and actual SQLs (only possible to test if an actual DB exists)
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:test-applicationConfig.xml")
-public class MockTest_UptoDaoInterface {
+public class MockTest_UptoDaoInterface extends BaseServerTest {
 
     @Autowired
     RemotableMockFactory mockFactory;
 
     private static final String PATH_QUERY_BY_OWNER = "/pets/list/ownerFirstName={ownerFirstName}";
-
-    private static Process server;
-
-   // @BeforeClass
-    public static void startServer() throws IOException, InterruptedException {
-        String classpath = System.getProperty("java.class.path");
-        String javaHome = System.getProperty("java.home");
-        String javaBin = javaHome +
-                File.separator + "bin" +
-                File.separator + "java";
-        String className = Main.class.getCanonicalName();
-        ProcessBuilder pb = new ProcessBuilder(javaBin, "-cp", classpath, className);
-        pb.inheritIO();
-        server = pb.start();
-        Thread.sleep(5000);
-    }
-    
 
     @Test
     public void testFindPetByOwnerName() throws Exception {
@@ -82,11 +63,6 @@ public class MockTest_UptoDaoInterface {
         URL url = new URL("http://localhost:8118" + path.replace(" ", "%20"));
         BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()));
         return reader.readLine();
-    }
-
-    @AfterClass
-    public static void stopServer() throws IOException, InterruptedException {
-        server.destroy();
     }
 
 }
