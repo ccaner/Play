@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
+ * CANNED FOR NOW
  * Enhances remotable object so remote invocations pass arguments as stubs (instead of serializing arguments)
  */
 public class RmiArgumentEnhancer implements InvocationHandler {

@@ -75,7 +75,7 @@ public class RmiRemotableBeanProcessor implements BeanPostProcessor, Ordered {
 
                 result = Proxy.newProxyInstance(getClass().getClassLoader(),
                         interfaces.toArray(new Class<?>[interfaces.size()]),
-                        new RmiArgumentEnhancer(handler, rmiRegistry));
+                        handler);
 
                 rmiRegistry.exportService((Remotable) result,
                         namingStrategy.nameService(bean, beanName),
