@@ -1,4 +1,4 @@
-package remotemock;
+package baseline;
 
 import com.google.common.collect.Lists;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -43,7 +43,7 @@ public class IntegrationTest {
                 File.separator + "bin" +
                 File.separator + "java";
         String className = Main.class.getCanonicalName();
-        ProcessBuilder pb = new ProcessBuilder(javaBin, "-cp", classpath, className);
+        ProcessBuilder pb = new ProcessBuilder(javaBin, "-cp", classpath, className, "jetty");
         pb.inheritIO();
         server = pb.start();
         Thread.sleep(5000);

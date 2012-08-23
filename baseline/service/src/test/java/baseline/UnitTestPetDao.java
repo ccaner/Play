@@ -1,4 +1,4 @@
-package remotemock;
+package baseline;
 
 import org.junit.*;
 import org.springframework.beans.factory.annotation.Autowired;

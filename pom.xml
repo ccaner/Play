@@ -15,6 +15,7 @@
         <module>remotemock</module>
         <module>baseline</module>
         <module>resultsetmock</module>
+        <module>async-client</module>
     </modules>
 
     <properties>
@@ -27,6 +28,7 @@
         <derby.version>10.9.1.0</derby.version>
         <jackson.version>1.9.7</jackson.version>
         <guava.version>12.0</guava.version>
+        <jetty.version>7.6.1.v20120215</jetty.version>
     </properties>
 
     <dependencyManagement>
@@ -126,6 +128,11 @@
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
